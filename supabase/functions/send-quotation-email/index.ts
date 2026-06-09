@@ -40,8 +40,13 @@ serve(async (req) => {
     const html = `
       <!DOCTYPE html>
       <html>
-      <body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-        <h1 style="color:#0A1B2A">🛒 Nueva Cotización C3 Nicaragua</h1>
+      <body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333;">
+        <div style="text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #eee">
+          <img src="https://c3-nicaragua.vercel.app/C3%20logo.png" alt="C3 Nicaragua Logo" width="100" height="100" style="display:block;margin:0 auto 10px;" />
+          <h1 style="color:#0A1B2A;margin:0;font-size:22px;">C3 Nicaragua</h1>
+          <p style="color:#666;margin:4px 0 0;font-size:14px;">Tu idea, tu estilo.</p>
+        </div>
+        <h2 style="color:#0A1B2A;margin-top:0;">🛒 Nueva Cotización Recibida</h2>
         <p>Has recibido una nueva cotización a través del catálogo web.</p>
 
         <h2 style="color:#2563EB;border-bottom:2px solid #2563EB;padding-bottom:8px">👤 Cliente</h2>
@@ -111,8 +116,13 @@ serve(async (req) => {
       const clientHtml = `
         <!DOCTYPE html>
         <html>
-        <body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
-          <h1 style="color:#0A1B2A">🛒 Tu Cotización en C3 Nicaragua</h1>
+        <body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333;">
+          <div style="text-align:center;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #eee">
+            <img src="https://c3-nicaragua.vercel.app/C3%20logo.png" alt="C3 Nicaragua Logo" width="100" height="100" style="display:block;margin:0 auto 10px;" />
+            <h1 style="color:#0A1B2A;margin:0;font-size:22px;">C3 Nicaragua</h1>
+            <p style="color:#666;margin:4px 0 0;font-size:14px;">Tu idea, tu estilo.</p>
+          </div>
+          <h2 style="color:#0A1B2A;margin-top:0;">🛒 Tu solicitud de cotización</h2>
           <p>Hola <strong>${quotation.customer_name}</strong>,</p>
           <p>Hemos recibido tu solicitud de cotización. Un agente de ventas se pondrá en contacto contigo muy pronto a través de WhatsApp o llamada.</p>
           
