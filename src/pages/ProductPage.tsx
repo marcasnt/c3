@@ -136,7 +136,7 @@ export function ProductPage() {
                       : "border-gray-200 dark:border-slate-700 hover:border-[#2563EB]/50"
                   )}
                 >
-                  <ProductImage product={product} imageUrlOverride={url} size="sm" className="transition-transform duration-200 group-hover:scale-105" />
+                  <ProductImage product={product} imageUrlOverride={url} size="full" className="transition-transform duration-200 group-hover:scale-105" />
                   
                   {/* Thumbnail hover indicator */}
                   <div className="absolute inset-0 bg-black/5 dark:bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">

@@ -109,8 +109,8 @@ h1, h2, h3, h4, h5, h6 {
   color-scheme: dark;
 }
 
-.dark .bg-white { background-color: #0f172a; }
-.dark .bg-gray-50 { background-color: #1e293b; }
+.dark .bg-white { background-color: #1e293b; }
+.dark .bg-gray-50 { background-color: #0f172a; }
 .dark .bg-gray-100 { background-color: #334155; }
 .dark .text-\[\#0A1B2A\] { color: #f1f5f9; }
 .dark .text-gray-500 { color: #94a3b8; }

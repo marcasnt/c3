@@ -63,7 +63,7 @@ export function CartDrawer() {
                 return (
                   <div key={`${item.productId}-${item.color}`} className="flex gap-3 bg-gray-50 dark:bg-slate-800 rounded-lg p-3">
                     <div className="w-16 h-16 bg-white dark:bg-slate-700 rounded-md shrink-0 flex items-center justify-center p-1">
-                      <ProductImage product={item.product} size="sm" />
+                      <ProductImage product={item.product} size="full" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">

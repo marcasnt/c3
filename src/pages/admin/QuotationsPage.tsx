@@ -199,7 +199,7 @@ export function QuotationsPage() {
                   <div className="flex items-center gap-3 min-w-0">
                     {first && (
                       <div className="w-16 h-16 bg-gray-50 dark:bg-slate-700 rounded-lg shrink-0 border border-gray-100 dark:border-slate-600 p-1">
-                        <ProductImage product={first.product} size="sm" />
+                        <ProductImage product={first.product} size="full" />
                       </div>
                     )}
                     <div className="min-w-0">
@@ -334,7 +334,7 @@ function QuotationDetail({ q, onClose }: { q: Quotation; onClose: () => void }) 
               {q.items.map((item, i) => (
                 <div key={i} className="flex items-center gap-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg p-2 text-sm">
                   <div className="w-14 h-14 bg-white dark:bg-slate-600 rounded shrink-0 border border-gray-100 dark:border-slate-500 p-1">
-                    <ProductImage product={item.product} size="sm" />
+                    <ProductImage product={item.product} size="full" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-[#0A1B2A] dark:text-slate-100">{item.product.name}</p>

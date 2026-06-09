@@ -71,7 +71,7 @@ export function ProductsPage() {
                   <td className="p-3">
                     <div className="flex items-center gap-3">
                       <div className="w-14 h-14 bg-gray-50 dark:bg-slate-700 rounded-lg shrink-0 border border-gray-100 dark:border-slate-600 p-1">
-                        <ProductImage product={p} size="sm" />
+                        <ProductImage product={p} size="full" />
                       </div>
                       <div className="min-w-0">
                         <p className="font-semibold text-[#0A1B2A] dark:text-slate-100 line-clamp-1">{p.name}</p>

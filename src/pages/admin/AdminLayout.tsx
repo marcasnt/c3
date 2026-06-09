@@ -20,7 +20,7 @@ export function AdminLayout() {
   if (!isAuthenticated) return <Navigate to="/admin/login" replace />;
 
   return (
-    <div className="min-h-[calc(100vh-200px)] bg-gray-50 dark:bg-slate-900 transition-colors">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       <div className="max-w-7xl mx-auto px-4 py-4">
         <button
           onClick={() => navigate('/')}

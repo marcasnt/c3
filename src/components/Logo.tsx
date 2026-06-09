@@ -13,7 +13,7 @@ export function Logo({ size = 'md', variant = 'full', light = false, className =
     xl: { circle: 120, text: 'C3', sub: 'text-base', slogan: true },
   };
   const s = sizes[size];
-  const subColor = light ? 'text-white/80' : 'text-[#0A1B2A]/80';
+  const subColor = light ? 'text-white/80' : 'text-[#0A1B2A]/80 dark:text-slate-300';
 
   return (
     <div className={`inline-flex items-center gap-3 ${className}`}>
@@ -45,7 +45,8 @@ export function Logo({ size = 'md', variant = 'full', light = false, className =
           fontFamily="Arial Black, sans-serif"
           fontSize="40"
           fontWeight="900"
-          fill={light ? '#FFFFFF' : '#0A1B2A'}
+          fill="currentColor"
+          className={light ? 'text-white' : 'text-[#0A1B2A] dark:text-white'}
         >
           C3
         </text>
@@ -53,7 +54,7 @@ export function Logo({ size = 'md', variant = 'full', light = false, className =
       {variant === 'full' && (
         <div className="flex flex-col leading-tight">
           <span
-            className={`font-extrabold tracking-tight ${size === 'sm' ? 'text-base' : size === 'md' ? 'text-lg' : size === 'lg' ? 'text-xl' : 'text-2xl'} ${light ? 'text-white' : 'text-[#0A1B2A]'}`}
+            className={`font-extrabold tracking-tight ${size === 'sm' ? 'text-base' : size === 'md' ? 'text-lg' : size === 'lg' ? 'text-xl' : 'text-2xl'} ${light ? 'text-white' : 'text-[#0A1B2A] dark:text-white'}`}
             style={{ fontFamily: 'Poppins, sans-serif' }}
           >
             C3

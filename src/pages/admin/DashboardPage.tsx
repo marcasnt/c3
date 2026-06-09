@@ -78,7 +78,7 @@ export function DashboardPage() {
                   >
                     {first && (
                       <div className="w-12 h-12 bg-white dark:bg-slate-600 rounded shrink-0 border border-gray-100 dark:border-slate-500 p-0.5">
-                        <ProductImage product={first.product} size="xs" />
+                        <ProductImage product={first.product} size="full" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">

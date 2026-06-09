@@ -307,7 +307,7 @@ export function CheckoutPage() {
             {adjustedCart.map((item, i) => (
               <div key={`${item.productId}-${item.color}-${i}`} className="flex gap-3 bg-gray-50 dark:bg-slate-700/50 rounded-lg p-2">
                 <div className="w-16 h-16 bg-white dark:bg-slate-600 rounded shrink-0 flex items-center justify-center p-1">
-                  <ProductImage product={item.product} size="sm" />
+                  <ProductImage product={item.product} size="full" />
                 </div>
                 <div className="flex-1 min-w-0 text-xs">
                   <p className="font-semibold line-clamp-1 text-[#0A1B2A] dark:text-slate-100">{item.product.name}</p>
