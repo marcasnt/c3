@@ -80,9 +80,9 @@ serve(async (req) => {
       </html>
     `;
 
-    // Enviar con Resend al admin
-    // NOTA: Se usa "onboarding@resend.dev" si no tienes un dominio propio verificado en Resend.
-    // Si tienes un dominio verificado, puedes cambiarlo a "C3 Nicaragua <cotizaciones@tudominio.com>"
+    // 1. Enviar correo de notificación al Agente de Ventas
+    // NOTA: Si usas el Sandbox de Resend (sin dominio verificado), el "from" DEBE ser "onboarding@resend.dev".
+    // Si ya tienes un dominio propio verificado en Resend, cambia el "from" a tu dominio (ej: "C3 Nicaragua <cotizaciones@c3nicaragua.com>").
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -98,10 +98,15 @@ serve(async (req) => {
     });
 
     if (!res.ok) {
-      throw new Error(`Resend error: ${await res.text()}`);
+      throw new Error(`Resend admin error: ${await res.text()}`);
+    } else {
+      console.log(`Notificación enviada con éxito al agente (${SALES_EMAIL})`);
     }
 
-    // Enviar correo de confirmación al cliente si introdujo su email
+    // 2. Enviar correo de confirmación al Cliente si ingresó su email
+    // ⚠️ IMPORTANTE: Si estás usando la cuenta gratuita de Resend (Modo Sandbox),
+    // Resend RECHAZARÁ enviar correos a destinatarios externos (clientes) y solo enviará a tu propio correo.
+    // Para que les llegue a tus clientes, DEBES registrar y verificar tu dominio personalizado en Resend.
     if (quotation.customer_email) {
       const clientHtml = `
         <!DOCTYPE html>
@@ -137,7 +142,7 @@ serve(async (req) => {
         </html>
       `;
 
-      await fetch("https://api.resend.com/emails", {
+      const clientRes = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -150,6 +155,12 @@ serve(async (req) => {
           html: clientHtml,
         }),
       });
+
+      if (!clientRes.ok) {
+        console.error(`Error de Resend al notificar al cliente (${quotation.customer_email}): ${await clientRes.text()}`);
+      } else {
+        console.log(`Confirmación enviada con éxito al cliente (${quotation.customer_email})`);
+      }
     }
 
     return new Response(
@@ -157,6 +168,7 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
+    console.error(`Error en la Edge Function: ${error.message}`);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
