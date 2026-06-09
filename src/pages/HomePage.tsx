@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
 import { ArrowRight, ShieldCheck, CreditCard, Percent, MessageCircle, Star, Truck, Award, Package } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
+import { ProductImage } from '../components/ProductImage';
 import { useApp } from '../store';
 import { BRAND_INFO } from '../data/products';
 import type { Brand } from '../types';
@@ -10,6 +12,16 @@ export function HomePage() {
   const featured = products.filter(p => p.featured).slice(0, 8);
   const newProducts = products.filter(p => p.isNew).slice(0, 4);
   const brands = Object.keys(BRAND_INFO) as Brand[];
+
+  // Prioritize featured products, fill with active products to get exactly 8 grid items
+  const heroProducts = useMemo(() => {
+    const list = products.filter(p => p.featured && p.isActive !== false);
+    if (list.length < 8) {
+      const remaining = products.filter(p => !p.featured && p.isActive !== false);
+      list.push(...remaining);
+    }
+    return list.slice(0, 8);
+  }, [products]);
 
   return (
     <div className="fade-in">
@@ -54,20 +66,20 @@ export function HomePage() {
           </div>
 
           <div className="hidden md:grid grid-cols-4 gap-3">
-            {[
-              { color: '#F5F1E8', label: 'Crema' },
-              { color: '#1A1A1A', label: 'Negro' },
-              { color: '#C8A2C8', label: 'Lila' },
-              { color: '#98D8C8', label: 'Menta' },
-              { color: '#FFB6C1', label: 'Rosa' },
-              { color: '#0F2C4D', label: 'Azul' },
-              { color: '#9CAF88', label: 'Sage' },
-              { color: '#E63946', label: 'Rojo' },
-            ].map((bottle, i) => (
-              <div key={i} className="bg-white/10 backdrop-blur rounded-2xl p-4 flex flex-col items-center gap-2 hover:bg-white/20 transition">
-                <div className="w-16 h-24 rounded-md" style={{ backgroundColor: bottle.color, boxShadow: 'inset -4px 0 8px rgba(0,0,0,0.2)' }} />
-                <span className="text-[10px] text-white/70">{bottle.label}</span>
-              </div>
+            {heroProducts.map((p) => (
+              <Link
+                key={p.id}
+                to={`/producto/${p.id}`}
+                className="group bg-white/10 backdrop-blur rounded-2xl p-3 flex flex-col items-center gap-2 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg border border-white/15"
+              >
+                <div className="w-20 h-20 bg-white/5 dark:bg-black/20 rounded-xl flex items-center justify-center p-1.5 transition-transform duration-300 group-hover:scale-110">
+                  <ProductImage product={p} size="full" />
+                </div>
+                <div className="text-center min-w-0 w-full">
+                  <p className="text-[10px] font-bold text-[#00BFA6] truncate uppercase tracking-wider">{p.brand}</p>
+                  <p className="text-[10px] text-white font-semibold truncate leading-tight mt-0.5">{p.name}</p>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
