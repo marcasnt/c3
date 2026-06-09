@@ -17,7 +17,7 @@ const navItems = [
 
 export function Header() {
   const navigate = useNavigate();
-  const { cartCount, setCartOpen } = useApp();
+  const { cartCount, setCartOpen, siteConfig } = useApp();
   const { theme, toggle } = useTheme();
   const [search, setSearch] = useState('');
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -36,13 +36,13 @@ export function Header() {
       <div className="bg-[#0A1B2A] dark:bg-slate-950 text-white text-xs">
         <div className="max-w-7xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-2">
           <a
-            href={`https://wa.me/50588888888`}
+            href={`https://wa.me/${siteConfig.whatsappNumber.replace(/\D/g, '')}`}
             target="_blank"
             rel="noreferrer"
             className="flex items-center gap-2 hover:text-[#00BFA6] transition"
           >
             <MessageCircle className="w-3.5 h-3.5" />
-            <span>Contáctanos: <strong>+505 8888 8888</strong></span>
+            <span>Contáctanos: <strong>{siteConfig.whatsappNumber}</strong></span>
           </a>
           <span className="hidden md:block opacity-80">Envíos a todo Nicaragua · Precios exclusivos para distribuidores</span>
           <button

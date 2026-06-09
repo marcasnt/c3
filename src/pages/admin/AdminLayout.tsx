@@ -32,7 +32,7 @@ export function AdminLayout() {
         <div className="grid md:grid-cols-[240px_1fr] gap-6">
           <aside className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 h-fit md:sticky md:top-28">
             <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-slate-700 mb-3">
-              <Logo size="sm" />
+              <Logo size="md" variant="compact" />
               <button
                 onClick={toggle}
                 className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-slate-700"

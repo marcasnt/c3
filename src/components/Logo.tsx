@@ -9,8 +9,8 @@ interface LogoProps {
 
 export function Logo({ size = 'md', variant = 'full', light = false, className = '' }: LogoProps) {
   const sizes = {
-    sm: { circle: 36, text: 'C3', sub: 'text-[9px]', slogan: false },
-    md: { circle: 56, text: 'C3', sub: 'text-xs', slogan: true },
+    sm: { circle: 48, text: 'C3', sub: 'text-[10px]', slogan: false },
+    md: { circle: 68, text: 'C3', sub: 'text-xs', slogan: true },
     lg: { circle: 80, text: 'C3', sub: 'text-sm', slogan: true },
     xl: { circle: 120, text: 'C3', sub: 'text-base', slogan: true },
   };
