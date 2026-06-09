@@ -47,6 +47,7 @@ function FallbackImage({ product, svg, className }: { product: Product; svg: num
   const hasHandle = product.category === 'Con asa' || ['Stanley', 'YETI', 'Lululemon'].includes(product.brand);
   const hasStraw = product.category === 'Con tapa y popote' || ['Owala', 'Disney'].includes(product.brand);
   const isKids = product.category === 'Kids / Disney';
+  const isAccessory = product.category === 'Accesorios';
 
   return (
     <div className={`${className} relative overflow-hidden rounded-lg bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900`}>
@@ -63,10 +64,34 @@ function FallbackImage({ product, svg, className }: { product: Product; svg: num
           </linearGradient>
         </defs>
 
-        {/* Shadow under cup */}
-        <ellipse cx="100" cy="180" rx="42" ry="5" fill="black" opacity="0.12" />
+        {/* Shadow under cup/accessory */}
+        {!isAccessory ? (
+          <ellipse cx="100" cy="180" rx="42" ry="5" fill="black" opacity="0.12" />
+        ) : (
+          <ellipse cx="100" cy="150" rx="28" ry="4" fill="black" opacity="0.08" />
+        )}
 
-        {isKids ? (
+        {isAccessory ? (
+          <g>
+            {/* Draw a beautiful accessory representation: a straw with a silicone cap */}
+            <circle cx="100" cy="95" r="45" fill={primaryColor} opacity="0.1" />
+            
+            {/* Straw */}
+            <rect x="96" y="55" width="8" height="85" fill="#CBD5E1" rx="2" />
+            
+            {/* Straw tip cap */}
+            <rect x="92" y="45" width="16" height="24" fill={`url(#body-grad-${product.id}-${svg})`} rx="4" />
+            {/* Cap connection loop */}
+            <path d="M 108 57 Q 124 57 124 69 Q 124 81 108 81" fill="none" stroke={secondaryColor} strokeWidth="4" />
+            <circle cx="108" cy="81" r="4" fill={secondaryColor} />
+            
+            {/* Brand text badge */}
+            <rect x="70" y="110" width="60" height="20" fill="white" opacity="0.95" rx="4" />
+            <text x="100" y="124" textAnchor="middle" fontSize="9" fontWeight="950" fill={brandInfo.color}>
+              {brandInfo.logo.toUpperCase().slice(0, 8)}
+            </text>
+          </g>
+        ) : isKids ? (
           <g>
             {hasStraw && <rect x="125" y="20" width="6" height="50" fill={secondaryColor} rx="2" />}
             <rect x="78" y="50" width="44" height="16" fill={darkenColor(primaryColor, 30)} rx="3" />
@@ -105,12 +130,14 @@ function FallbackImage({ product, svg, className }: { product: Product; svg: num
         )}
 
         {/* Capacity badge */}
-        <g>
-          <rect x="62" y="162" width="76" height="16" fill="white" opacity="0.9" rx="8" />
-          <text x="100" y="173" textAnchor="middle" fontSize="9" fontWeight="700" fill="#0A1B2A">
-            {product.capacity}
-          </text>
-        </g>
+        {product.capacity && (
+          <g>
+            <rect x="62" y="162" width="76" height="16" fill="white" opacity="0.9" rx="8" />
+            <text x="100" y="173" textAnchor="middle" fontSize="9" fontWeight="700" fill="#0A1B2A">
+              {product.capacity}
+            </text>
+          </g>
+        )}
       </svg>
     </div>
   );
