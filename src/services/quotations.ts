@@ -61,7 +61,7 @@ export async function createQuotation(data: CreateQuotationData): Promise<Quotat
   const id = `COT-${Date.now().toString(36).toUpperCase()}`;
 
   // 1. Insertar cotización
-  const { data: quotation, error: qError } = await supabase
+  const { error: qError } = await supabase
     .from('quotations')
     .insert({
       id,
@@ -74,9 +74,7 @@ export async function createQuotation(data: CreateQuotationData): Promise<Quotat
       price_type: data.priceType,
       status: 'nueva',
       source: 'web',
-    })
-    .select()
-    .single();
+    });
 
   if (qError) throw qError;
 
@@ -102,7 +100,7 @@ export async function createQuotation(data: CreateQuotationData): Promise<Quotat
   // Return full Quotation object
   return {
     id,
-    date: quotation.created_at || new Date().toISOString(),
+    date: new Date().toISOString(),
     customerName: data.customerName,
     customerPhone: data.customerPhone,
     customerEmail: data.customerEmail,
