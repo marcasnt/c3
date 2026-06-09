@@ -4,10 +4,21 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
 const SALES_EMAIL = Deno.env.get("SALES_EMAIL")!;
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
 serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   // Solo permitir POST
   if (req.method !== "POST") {
-    return new Response("Method not allowed", { status: 405 });
+    return new Response("Method not allowed", { status: 405, headers: corsHeaders });
   }
 
   try {
@@ -69,7 +80,9 @@ serve(async (req) => {
       </html>
     `;
 
-    // Enviar con Resend
+    // Enviar con Resend al admin
+    // NOTA: Se usa "onboarding@resend.dev" si no tienes un dominio propio verificado en Resend.
+    // Si tienes un dominio verificado, puedes cambiarlo a "C3 Nicaragua <cotizaciones@tudominio.com>"
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -77,7 +90,7 @@ serve(async (req) => {
         "Authorization": `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "C3 Nicaragua <cotizaciones@tudominio.com>",
+        from: "C3 Nicaragua <onboarding@resend.dev>",
         to: [SALES_EMAIL],
         subject: `🛒 Nueva cotización ${quotation.id} - C$ ${quotation.total.toLocaleString('es-NI')}`,
         html,
@@ -88,14 +101,65 @@ serve(async (req) => {
       throw new Error(`Resend error: ${await res.text()}`);
     }
 
+    // Enviar correo de confirmación al cliente si introdujo su email
+    if (quotation.customer_email) {
+      const clientHtml = `
+        <!DOCTYPE html>
+        <html>
+        <body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px">
+          <h1 style="color:#0A1B2A">🛒 Tu Cotización en C3 Nicaragua</h1>
+          <p>Hola <strong>${quotation.customer_name}</strong>,</p>
+          <p>Hemos recibido tu solicitud de cotización. Un agente de ventas se pondrá en contacto contigo muy pronto a través de WhatsApp o llamada.</p>
+          
+          <h2 style="color:#2563EB;border-bottom:2px solid #2563EB;padding-bottom:8px">📋 Resumen de tu Pedido (${quotation.id})</h2>
+          <table style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr style="background:#f5f5f5">
+                <th style="padding:8px;text-align:left">Producto</th>
+                <th style="padding:8px;text-align:right">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+
+          <h2 style="margin-top:20px;color:#00BFA6">
+            💰 Total: C$ ${quotation.total.toLocaleString('es-NI')}
+          </h2>
+          <p>Tipo de precio aplicado: <strong>${quotation.price_type === 'distributor' ? 'Distribuidor' : 'Público'}</strong></p>
+          
+          <p style="margin-top:30px;color:#666;font-size:12px">
+            Gracias por elegir C3 Nicaragua.<br>
+            Este es un correo automático de confirmación de solicitud de cotización.
+          </p>
+        </body>
+        </html>
+      `;
+
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: "C3 Nicaragua <onboarding@resend.dev>",
+          to: [quotation.customer_email],
+          subject: `🛒 Confirmación de Cotización ${quotation.id} - C3 Nicaragua`,
+          html: clientHtml,
+        }),
+      });
+    }
+
     return new Response(
       JSON.stringify({ success: true }),
-      { headers: { "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
