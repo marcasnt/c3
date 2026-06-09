@@ -9,10 +9,10 @@ interface LogoProps {
 
 export function Logo({ size = 'md', variant = 'full', light = false, className = '' }: LogoProps) {
   const sizes = {
-    sm: { circle: 48, text: 'C3', sub: 'text-[10px]', slogan: false },
-    md: { circle: 68, text: 'C3', sub: 'text-xs', slogan: true },
-    lg: { circle: 80, text: 'C3', sub: 'text-sm', slogan: true },
-    xl: { circle: 120, text: 'C3', sub: 'text-base', slogan: true },
+    sm: { circle: 58, text: 'C3', sub: 'text-[10px]', slogan: false },
+    md: { circle: 82, text: 'C3', sub: 'text-xs', slogan: true },
+    lg: { circle: 96, text: 'C3', sub: 'text-sm', slogan: true },
+    xl: { circle: 144, text: 'C3', sub: 'text-base', slogan: true },
   };
   const s = sizes[size];
   const subColor = light ? 'text-white/80' : 'text-[#0A1B2A]/80 dark:text-slate-300';

@@ -15,10 +15,14 @@ export function useTheme() {
 
   useEffect(() => {
     const root = document.documentElement;
+    const link = document.querySelector("link[rel='icon']") as HTMLLinkElement | null;
+
     if (theme === 'dark') {
       root.classList.add('dark');
+      if (link) link.href = '/Logo Blanco C3.png?v=2';
     } else {
       root.classList.remove('dark');
+      if (link) link.href = '/C3 logo.png?v=2';
     }
     try {
       localStorage.setItem('c3_theme', theme);

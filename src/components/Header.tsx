@@ -57,7 +57,7 @@ export function Header() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center gap-4 lg:gap-8 h-20">
+        <div className="flex items-center gap-4 lg:gap-8 min-h-20 py-2">
           <Link to="/" className="shrink-0">
             <Logo size="md" variant="compact" />
           </Link>

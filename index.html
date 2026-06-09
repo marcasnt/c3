@@ -15,6 +15,17 @@
     <meta property="og:image" content="https://c3-nicaragua.vercel.app/C3 logo.png" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://c3-nicaragua.vercel.app" />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('c3_theme');
+          var isDark = saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.querySelector("link[rel='icon']").href = "/Logo Blanco C3.png?v=2";
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
