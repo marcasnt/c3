@@ -59,7 +59,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center gap-4 lg:gap-8 h-20">
           <Link to="/" className="shrink-0">
-            <Logo size="md" />
+            <Logo size="md" variant="compact" />
           </Link>
 
           <form onSubmit={handleSearch} className="flex-1 max-w-2xl hidden md:block">

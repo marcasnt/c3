@@ -156,7 +156,7 @@ export function CheckoutPage() {
       <div className="fade-in max-w-2xl mx-auto px-4 py-16 text-center">
         <div className="bg-white dark:bg-slate-800 border-2 border-emerald-200 dark:border-emerald-700 rounded-2xl p-8">
           <div className="flex justify-center mb-5">
-            <Logo size="lg" />
+            <Logo size="lg" variant="compact" />
           </div>
           <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
           <h2 className="text-2xl font-extrabold text-[#0A1B2A] dark:text-slate-100 mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>

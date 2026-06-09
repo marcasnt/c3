@@ -44,7 +44,7 @@ export function AdminLoginPage() {
             <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-white/10" />
             <div className="absolute -left-10 -bottom-10 w-32 h-32 rounded-full bg-white/5" />
             <div className="flex justify-center mb-3 relative">
-              <Logo size="lg" light />
+              <Logo size="lg" light variant="compact" />
             </div>
             <h1 className="text-xl font-extrabold relative" style={{ fontFamily: 'Poppins, sans-serif' }}>
               Panel de Agente de Ventas
