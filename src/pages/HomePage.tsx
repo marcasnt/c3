@@ -31,7 +31,7 @@ export function HomePage() {
           <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full bg-[#00BFA6] blur-3xl" />
           <div className="absolute -bottom-20 -left-20 w-96 h-96 rounded-full bg-[#7C3AED] blur-3xl" />
         </div>
-        <div className="max-w-7xl mx-auto px-4 py-12 md:py-16 grid md:grid-cols-2 gap-8 items-center relative">
+        <div className="max-w-7xl mx-auto px-4 py-6 md:py-8 grid md:grid-cols-2 gap-8 items-center relative">
           <div>
             <span className="inline-block bg-white/15 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold mb-4">
               ✨ Catálogo mayorista 2026
@@ -65,19 +65,19 @@ export function HomePage() {
             </div>
           </div>
 
-          <div className="hidden md:grid grid-cols-4 gap-3">
+          <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-2.5">
             {heroProducts.map((p) => (
               <Link
                 key={p.id}
                 to={`/producto/${p.id}`}
-                className="group bg-white/10 backdrop-blur rounded-2xl p-3 flex flex-col items-center gap-2 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg border border-white/15"
+                className="group bg-white/10 backdrop-blur rounded-xl p-2 flex items-center gap-2.5 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg border border-white/15"
               >
-                <div className="w-20 h-20 bg-white/5 dark:bg-black/20 rounded-xl flex items-center justify-center p-1.5 transition-transform duration-300 group-hover:scale-110">
+                <div className="w-12 h-12 bg-white/5 dark:bg-black/20 rounded-lg flex items-center justify-center p-1 shrink-0 transition-transform duration-300 group-hover:scale-110">
                   <ProductImage product={p} size="full" />
                 </div>
-                <div className="text-center min-w-0 w-full">
-                  <p className="text-[10px] font-bold text-[#00BFA6] truncate uppercase tracking-wider">{p.brand}</p>
-                  <p className="text-[10px] text-white font-semibold truncate leading-tight mt-0.5">{p.name}</p>
+                <div className="text-left min-w-0 flex-1">
+                  <p className="text-[9px] font-bold text-[#00BFA6] truncate uppercase tracking-wider leading-none">{p.brand}</p>
+                  <p className="text-[10px] text-white font-semibold truncate leading-tight mt-1">{p.name}</p>
                 </div>
               </Link>
             ))}
