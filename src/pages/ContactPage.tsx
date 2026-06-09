@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin, MessageCircle, Send, Clock } from 'lucide-react';
+import { useApp } from '../store';
 
 export function ContactPage() {
+  const { siteConfig } = useApp();
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
   const [sent, setSent] = useState(false);
 
@@ -10,7 +12,8 @@ export function ContactPage() {
     e.preventDefault();
     if (!form.name || !form.phone) return;
     const text = `Hola C3, soy ${form.name}. ${form.message || 'Quisiera más información.'} Tel: ${form.phone}`;
-    window.open(`https://wa.me/50588888888?text=${encodeURIComponent(text)}`, '_blank');
+    const cleanPhone = siteConfig.whatsappNumber.replace(/\D/g, '');
+    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
     setSent(true);
     setForm({ name: '', email: '', phone: '', message: '' });
     setTimeout(() => setSent(false), 4000);
@@ -29,10 +32,10 @@ export function ContactPage() {
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-3">
           {[
-            { icon: MessageCircle, title: 'WhatsApp Ventas', value: '+505 8888 8888', href: 'https://wa.me/50588888888', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/30' },
-            { icon: Phone, title: 'Teléfono', value: '+505 8888 8888', href: 'tel:+50588888888', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/30' },
-            { icon: Mail, title: 'Email', value: 'ventas@c3nicaragua.com', href: 'mailto:ventas@c3nicaragua.com', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-900/30' },
-            { icon: MapPin, title: 'Ubicación', value: 'Managua, Nicaragua', href: '#', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-900/30' },
+            { icon: MessageCircle, title: 'WhatsApp Ventas', value: siteConfig.whatsappNumber, href: `https://wa.me/${siteConfig.whatsappNumber.replace(/\D/g, '')}`, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/30' },
+            { icon: Phone, title: 'Teléfono', value: siteConfig.whatsappNumber, href: `tel:${siteConfig.whatsappNumber}`, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/30' },
+            { icon: Mail, title: 'Email', value: siteConfig.salesEmail, href: `mailto:${siteConfig.salesEmail}`, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-900/30' },
+            { icon: MapPin, title: 'Ubicación', value: siteConfig.address, href: '#', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-900/30' },
           ].map((item, i) => (
             <a
               key={i}

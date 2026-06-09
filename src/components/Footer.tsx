@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { MessageCircle, Mail, MapPin, Phone, Send } from 'lucide-react';
 import { Logo } from './Logo';
 import { useState } from 'react';
+import { useApp } from '../store';
 
 const Facebook = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -17,6 +18,7 @@ const Instagram = ({ className }: { className?: string }) => (
 );
 
 export function Footer() {
+  const { siteConfig } = useApp();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
@@ -45,7 +47,7 @@ export function Footer() {
               <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
                 <Instagram className="w-4 h-4" />
               </a>
-              <a href="https://wa.me/50588888888" target="_blank" rel="noreferrer" className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+              <a href={`https://wa.me/${siteConfig.whatsappNumber.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
                 <MessageCircle className="w-4 h-4" />
               </a>
             </div>
@@ -74,9 +76,9 @@ export function Footer() {
           <div>
             <h4 className="font-bold mb-4 text-sm">CONTACTO</h4>
             <ul className="space-y-2 text-sm text-white/70">
-              <li className="flex items-center gap-2"><Phone className="w-3.5 h-3.5" />+505 8888 8888</li>
-              <li className="flex items-center gap-2"><Mail className="w-3.5 h-3.5" />ventas@c3nicaragua.com</li>
-              <li className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5" />Managua, Nicaragua</li>
+              <li className="flex items-center gap-2"><Phone className="w-3.5 h-3.5" />{siteConfig.whatsappNumber}</li>
+              <li className="flex items-center gap-2"><Mail className="w-3.5 h-3.5" />{siteConfig.salesEmail}</li>
+              <li className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5" />{siteConfig.address}</li>
             </ul>
           </div>
         </div>
