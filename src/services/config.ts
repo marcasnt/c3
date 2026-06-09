@@ -23,7 +23,15 @@ export async function fetchPublicConfig(): Promise<SiteConfig> {
 
     const configMap: Record<string, any> = {};
     (data || []).forEach((row: any) => {
-      configMap[row.key] = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
+      if (typeof row.value === 'string') {
+        try {
+          configMap[row.key] = JSON.parse(row.value);
+        } catch {
+          configMap[row.key] = row.value;
+        }
+      } else {
+        configMap[row.key] = row.value;
+      }
     });
 
     return {
@@ -50,7 +58,15 @@ export async function fetchAllConfig(): Promise<Record<string, any>> {
 
   const configMap: Record<string, any> = {};
   (data || []).forEach((row: any) => {
-    configMap[row.key] = typeof row.value === 'string' ? JSON.parse(row.value) : row.value;
+    if (typeof row.value === 'string') {
+      try {
+        configMap[row.key] = JSON.parse(row.value);
+      } catch {
+        configMap[row.key] = row.value;
+      }
+    } else {
+      configMap[row.key] = row.value;
+    }
   });
   return configMap;
 }
