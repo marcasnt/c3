@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useState, useMemo } from 'react';
-import { Heart, ShoppingCart, MessageCircle, Shield, Truck, Percent, ChevronLeft, Check, Tag } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Heart, ShoppingCart, MessageCircle, Shield, Truck, Percent, ChevronLeft, Check, Tag, Plus, X, ChevronRight } from 'lucide-react';
 import { useApp } from '../store';
 import { ProductImage } from '../components/ProductImage';
 import { ProductCard } from '../components/ProductCard';
@@ -16,6 +16,48 @@ export function ProductPage() {
   const [selectedColor, setSelectedColor] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [fav, setFav] = useState(false);
+
+  const [activeImage, setActiveImage] = useState<string | undefined>(undefined);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Sync activeImage with product change
+  useEffect(() => {
+    if (product) {
+      setActiveImage(product.imageUrl || product.imageUrl2 || product.imageUrl3 || undefined);
+    }
+  }, [id, product?.imageUrl, product?.imageUrl2, product?.imageUrl3]);
+
+  // List of all active product images (real uploaded URLs)
+  const imageUrls = useMemo(() => {
+    if (!product) return [];
+    return [product.imageUrl, product.imageUrl2, product.imageUrl3].filter(
+      (url): url is string => typeof url === 'string' && url.trim() !== ''
+    );
+  }, [product?.imageUrl, product?.imageUrl2, product?.imageUrl3]);
+
+  const currentImageIndex = useMemo(() => {
+    if (!activeImage) return 0;
+    const idx = imageUrls.indexOf(activeImage);
+    return idx === -1 ? 0 : idx;
+  }, [activeImage, imageUrls]);
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setLightboxIndex(null);
+      } else if (e.key === 'ArrowRight' && imageUrls.length > 1) {
+        setLightboxIndex(prev => (prev !== null ? (prev + 1) % imageUrls.length : null));
+      } else if (e.key === 'ArrowLeft' && imageUrls.length > 1) {
+        setLightboxIndex(prev => (prev !== null ? (prev - 1 + imageUrls.length) % imageUrls.length : null));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxIndex, imageUrls.length]);
 
   // Auto-calc: distributor when qty >= min
   const priceType: 'public' | 'distributor' = quantity >= siteConfig.minDistributorQty ? 'distributor' : 'public';
@@ -60,17 +102,50 @@ export function ProductPage() {
 
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
         {/* Image gallery */}
-        <div>
-          <div className="bg-gradient-to-b from-gray-50 to-white dark:from-slate-800 dark:to-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-8 aspect-square flex items-center justify-center">
-            <ProductImage product={product} size="xl" />
-          </div>
-          <div className="grid grid-cols-4 gap-2 mt-3">
-            {[0, 1, 2, 3].map(i => (
-              <div key={i} className="aspect-square border border-gray-200 dark:border-slate-700 rounded-lg bg-gradient-to-b from-gray-50 to-white dark:from-slate-800 dark:to-slate-900 flex items-center justify-center cursor-pointer hover:border-[#2563EB] p-1">
-                <ProductImage product={product} size="sm" />
+        <div className="flex flex-col gap-4">
+          <div 
+            onClick={() => setLightboxIndex(imageUrls.length > 0 ? currentImageIndex : 0)}
+            className="group relative bg-gradient-to-b from-gray-50 to-white dark:from-slate-800 dark:to-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-8 aspect-square flex items-center justify-center cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg"
+          >
+            <ProductImage product={product} imageUrlOverride={activeImage} size="xl" className="transition-transform duration-300 group-hover:scale-[1.03]" />
+            
+            {/* Zoom indicator overlay */}
+            <div className="absolute inset-0 bg-black/10 dark:bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <div className="bg-white/80 dark:bg-slate-800/80 p-3.5 rounded-full backdrop-blur-sm scale-75 group-hover:scale-100 transition-transform duration-300 shadow-xl border border-white/20 dark:border-slate-700/50">
+                <Plus className="w-6 h-6 text-gray-800 dark:text-slate-100" />
               </div>
-            ))}
+            </div>
           </div>
+
+          {imageUrls.length > 1 && (
+            <div className="grid grid-cols-3 gap-3">
+              {imageUrls.map((url, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => {
+                    if (activeImage === url) {
+                      setLightboxIndex(idx);
+                    } else {
+                      setActiveImage(url);
+                    }
+                  }}
+                  className={cn(
+                    "group relative aspect-square border rounded-xl bg-gradient-to-b from-gray-50 to-white dark:from-slate-800 dark:to-slate-900 flex items-center justify-center cursor-pointer p-2 overflow-hidden transition-all duration-200",
+                    activeImage === url
+                      ? "border-[#2563EB] ring-2 ring-[#2563EB]/20 scale-[1.02]"
+                      : "border-gray-200 dark:border-slate-700 hover:border-[#2563EB]/50"
+                  )}
+                >
+                  <ProductImage product={product} imageUrlOverride={url} size="sm" className="transition-transform duration-200 group-hover:scale-105" />
+                  
+                  {/* Thumbnail hover indicator */}
+                  <div className="absolute inset-0 bg-black/5 dark:bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                    <Plus className="w-4 h-4 text-gray-800 dark:text-slate-100 drop-shadow" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Details */}
@@ -261,6 +336,74 @@ export function ProductPage() {
             {related.map(p => <ProductCard key={p.id} product={p} />)}
           </div>
         </section>
+      )}
+
+      {/* Lightbox Modal */}
+      {lightboxIndex !== null && (
+        <div 
+          onClick={() => setLightboxIndex(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md transition-opacity duration-300 animate-fade-in"
+        >
+          {/* Close button */}
+          <button
+            onClick={() => setLightboxIndex(null)}
+            className="fixed top-6 right-6 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all duration-200 hover:rotate-90 z-50 shadow-lg cursor-pointer"
+            aria-label="Cerrar"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          {/* Navigation - Prev */}
+          {imageUrls.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex(prev => (prev !== null ? (prev - 1 + imageUrls.length) % imageUrls.length : null));
+              }}
+              className="fixed left-6 p-4 bg-white/10 hover:bg-white/20 hover:scale-110 text-white backdrop-blur-sm rounded-full transition-all duration-200 z-50 shadow-lg cursor-pointer"
+              aria-label="Anterior"
+            >
+              <ChevronLeft className="w-8 h-8" />
+            </button>
+          )}
+
+          {/* Image Container */}
+          <div 
+            onClick={(e) => e.stopPropagation()} 
+            className="relative flex items-center justify-center max-w-[90vw] max-h-[85vh] p-2"
+          >
+            {imageUrls.length === 0 ? (
+              <ProductImage product={product} size="full" className="w-[80vw] h-[80vw] max-w-2xl max-h-2xl" />
+            ) : (
+              <img
+                src={imageUrls[lightboxIndex]}
+                alt={`${product.name} - Vista ${lightboxIndex + 1}`}
+                className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl transition-transform duration-300 transform scale-100 animate-zoom-in"
+              />
+            )}
+
+            {/* Image Indicator / Badge */}
+            {imageUrls.length > 1 && (
+              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs text-white font-medium shadow-md">
+                {lightboxIndex + 1} / {imageUrls.length}
+              </div>
+            )}
+          </div>
+
+          {/* Navigation - Next */}
+          {imageUrls.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex(prev => (prev !== null ? (prev + 1) % imageUrls.length : null));
+              }}
+              className="fixed right-6 p-4 bg-white/10 hover:bg-white/20 hover:scale-110 text-white backdrop-blur-sm rounded-full transition-all duration-200 z-50 shadow-lg cursor-pointer"
+              aria-label="Siguiente"
+            >
+              <ChevronRight className="w-8 h-8" />
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

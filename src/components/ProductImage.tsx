@@ -5,10 +5,11 @@ interface ProductImageProps {
   product: Product;
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
   className?: string;
+  imageUrlOverride?: string;
 }
 
 // SVG-based product visualization with proper containment
-export function ProductImage({ product, size = 'md', className = '' }: ProductImageProps) {
+export function ProductImage({ product, size = 'md', className = '', imageUrlOverride }: ProductImageProps) {
   // Fixed aspect ratio box so images never overflow or get cropped weirdly
   const sizeMap = {
     xs: { box: 'w-10 h-10', svg: 40 },
@@ -20,12 +21,14 @@ export function ProductImage({ product, size = 'md', className = '' }: ProductIm
   };
   const { box, svg } = sizeMap[size];
 
+  const displayUrl = imageUrlOverride || product.imageUrl;
+
   // Use a real image if available
-  if (product.imageUrl) {
+  if (displayUrl) {
     return (
       <div className={`${box} relative overflow-hidden rounded-lg ${className}`}>
         <img
-          src={product.imageUrl}
+          src={displayUrl}
           alt={product.name}
           className="absolute inset-0 w-full h-full object-contain"
         />

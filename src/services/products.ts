@@ -49,6 +49,8 @@ function mapDbProductToProduct(dbProduct: any): ProductWithRelations {
     features: dbProduct.features || [],
     image: dbProduct.image_url || '',
     imageUrl: dbProduct.image_url || undefined,
+    imageUrl2: dbProduct.image_url_2 || undefined,
+    imageUrl3: dbProduct.image_url_3 || undefined,
     stock: Number(dbProduct.stock) || 0,
     featured: !!dbProduct.is_featured,
     isNew: !!dbProduct.is_new,
@@ -80,6 +82,13 @@ function mapProductToDb(product: Partial<Product>): any {
     dbProduct.image_url = product.imageUrl;
   } else if (product.image !== undefined) {
     dbProduct.image_url = product.image;
+  }
+
+  if (product.imageUrl2 !== undefined) {
+    dbProduct.image_url_2 = product.imageUrl2;
+  }
+  if (product.imageUrl3 !== undefined) {
+    dbProduct.image_url_3 = product.imageUrl3;
   }
 
   if (product.brand !== undefined) {

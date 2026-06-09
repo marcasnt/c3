@@ -21,6 +21,8 @@ export interface Product {
   features: string[];
   image: string;
   imageUrl?: string; // URL real de imagen subida por el admin
+  imageUrl2?: string; // URL de la segunda vista de imagen
+  imageUrl3?: string; // URL de la tercera vista de imagen
   stock: number;
   featured?: boolean;
   isNew?: boolean;
