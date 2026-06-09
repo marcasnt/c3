@@ -243,8 +243,8 @@ function ProductModal({
               <ImageIcon className="w-3.5 h-3.5" /> Imagen del producto
             </p>
             <div className="flex flex-col sm:flex-row gap-4 items-center">
-              <div className="w-32 h-32 bg-white dark:bg-slate-600 rounded-lg shrink-0 border-2 border-dashed border-gray-300 dark:border-slate-500 p-2">
-                <ProductImage product={form} size="lg" />
+              <div className="w-32 h-32 bg-white dark:bg-slate-600 rounded-lg shrink-0 border-2 border-dashed border-gray-300 dark:border-slate-500 p-2 overflow-hidden">
+                <ProductImage product={form} size="full" />
               </div>
               <div className="flex-1 w-full">
                 <input

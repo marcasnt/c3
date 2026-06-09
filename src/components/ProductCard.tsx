@@ -50,8 +50,8 @@ export function ProductCard({ product }: ProductCardProps) {
           <Heart className={cn('w-4 h-4', fav ? 'fill-red-500 text-red-500' : 'text-gray-400 dark:text-slate-400')} />
         </button>
 
-        <div className="transform group-hover:scale-105 transition-transform w-32 h-32 sm:w-36 sm:h-36">
-          <ProductImage product={product} size="lg" />
+        <div className="transform group-hover:scale-105 transition-transform w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center">
+          <ProductImage product={product} size="full" />
         </div>
 
         <button

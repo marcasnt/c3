@@ -3,7 +3,7 @@ import { BRAND_INFO } from '../data/products';
 
 interface ProductImageProps {
   product: Product;
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
   className?: string;
 }
 
@@ -16,6 +16,7 @@ export function ProductImage({ product, size = 'md', className = '' }: ProductIm
     md: { box: 'w-28 h-28 sm:w-32 sm:h-32', svg: 110 },
     lg: { box: 'w-44 h-44 sm:w-52 sm:h-52', svg: 180 },
     xl: { box: 'w-64 h-64 sm:w-80 sm:h-80', svg: 260 },
+    full: { box: 'w-full h-full', svg: 180 },
   };
   const { box, svg } = sizeMap[size];
 
