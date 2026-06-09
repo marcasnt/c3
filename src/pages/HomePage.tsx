@@ -65,19 +65,19 @@ export function HomePage() {
             </div>
           </div>
 
-          <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+          <div className="hidden md:grid grid-cols-4 gap-2.5">
             {heroProducts.map((p) => (
               <Link
                 key={p.id}
                 to={`/producto/${p.id}`}
-                className="group bg-white/10 backdrop-blur rounded-xl p-2 flex items-center gap-2.5 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg border border-white/15"
+                className="group bg-white/10 backdrop-blur rounded-xl p-2 flex flex-col gap-2 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg border border-white/15 text-center"
               >
-                <div className="w-12 h-12 bg-white/5 dark:bg-black/20 rounded-lg flex items-center justify-center p-1 shrink-0 transition-transform duration-300 group-hover:scale-110">
+                <div className="w-full h-28 bg-white/5 dark:bg-black/20 rounded-lg flex items-center justify-center p-2 transition-transform duration-300 group-hover:scale-105">
                   <ProductImage product={p} size="full" />
                 </div>
-                <div className="text-left min-w-0 flex-1">
+                <div className="min-w-0 w-full">
                   <p className="text-[9px] font-bold text-[#00BFA6] truncate uppercase tracking-wider leading-none">{p.brand}</p>
-                  <p className="text-[10px] text-white font-semibold truncate leading-tight mt-1">{p.name}</p>
+                  <p className="text-[11px] text-white font-semibold truncate leading-tight mt-1">{p.name}</p>
                 </div>
               </Link>
             ))}
