@@ -60,6 +60,7 @@ export function Footer() {
               <li><Link to="/catalogo" className="hover:text-white">Catálogo</Link></li>
               <li><Link to="/marcas" className="hover:text-white">Marcas</Link></li>
               <li><Link to="/nosotros" className="hover:text-white">Nosotros</Link></li>
+              <li><Link to="/admin" className="hover:text-white text-xs opacity-50">Panel Admin</Link></li>
             </ul>
           </div>
 

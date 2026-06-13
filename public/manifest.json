@@ -9,13 +9,13 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/C3 logo.png",
+      "src": "/Logo Blanco C3.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/Logo Blanco C3.png",
+      "src": "/C3 logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
