@@ -1,0 +1,24 @@
+{
+  "name": "C3 Nicaragua - Catálogo de Vasos Térmicos",
+  "short_name": "C3 Catálogo",
+  "description": "Catálogo digital de vasos térmicos de las mejores marcas. Precios al detalle y por mayor para distribuidores.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0E5BA8",
+  "theme_color": "#0A1B2A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/C3 logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Logo Blanco C3.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
