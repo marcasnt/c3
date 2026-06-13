@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MessageCircle, Mail, MapPin, Phone, Send } from 'lucide-react';
 import { Logo } from './Logo';
 import { useState } from 'react';
@@ -19,8 +19,28 @@ const Instagram = ({ className }: { className?: string }) => (
 
 export function Footer() {
   const { siteConfig } = useApp();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [logoClicks, setLogoClicks] = useState(0);
+  const [clickTimeout, setClickTimeout] = useState<any>(null);
+
+  const handleLogoClick = () => {
+    setLogoClicks(prev => {
+      const next = prev + 1;
+      if (next >= 5) {
+        navigate('/admin');
+        return 0;
+      }
+      return next;
+    });
+
+    if (clickTimeout) clearTimeout(clickTimeout);
+    const newTimeout = setTimeout(() => {
+      setLogoClicks(0);
+    }, 3000);
+    setClickTimeout(newTimeout);
+  };
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +56,9 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-2">
-            <Logo size="md" light />
+            <div onClick={handleLogoClick} className="cursor-pointer select-none inline-block">
+              <Logo size="md" light />
+            </div>
             <p className="mt-4 text-sm text-white/70 max-w-sm">
               Catálogo digital diseñado para distribuidores que buscan calidad, variedad y los mejores precios en vasos térmicos originales y genéricos.
             </p>
@@ -60,7 +82,6 @@ export function Footer() {
               <li><Link to="/catalogo" className="hover:text-white">Catálogo</Link></li>
               <li><Link to="/marcas" className="hover:text-white">Marcas</Link></li>
               <li><Link to="/nosotros" className="hover:text-white">Nosotros</Link></li>
-              <li><Link to="/admin" className="hover:text-white text-xs opacity-50">Panel Admin</Link></li>
             </ul>
           </div>
 
