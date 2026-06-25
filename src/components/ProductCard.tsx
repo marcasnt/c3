@@ -35,7 +35,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link
-      to={`/producto/${product.id}`}
+      to={`/producto/${product.id}?color=${encodeURIComponent(selectedColor.name)}`}
       className="group block bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden hover:shadow-lg hover:border-[#2563EB]/30 dark:hover:border-blue-500/50 transition-all"
     >
       <div className="relative bg-gradient-to-b from-gray-50 to-white dark:from-slate-700/40 dark:to-slate-800 p-4 aspect-square flex items-center justify-center">

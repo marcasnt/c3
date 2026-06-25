@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useState, useMemo, useEffect } from 'react';
 import { Heart, ShoppingCart, MessageCircle, Shield, Truck, Percent, ChevronLeft, Check, Tag, Plus, X, ChevronRight } from 'lucide-react';
 import { useApp } from '../store';
@@ -13,12 +13,36 @@ export function ProductPage() {
   const navigate = useNavigate();
   const product = products.find(p => p.id === id);
 
-  const [selectedColor, setSelectedColor] = useState(0);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const colorQuery = searchParams.get('color');
+
+  const [selectedColor, setSelectedColor] = useState(() => {
+    if (product && colorQuery) {
+      const idx = product.colors.findIndex(c => c.name.toLowerCase() === colorQuery.toLowerCase());
+      if (idx !== -1) return idx;
+    }
+    return 0;
+  });
   const [quantity, setQuantity] = useState(1);
   const [fav, setFav] = useState(false);
 
   const [activeImage, setActiveImage] = useState<string | undefined>(undefined);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Sync selectedColor state with URL query parameter on product change or query change
+  useEffect(() => {
+    if (product) {
+      const colorParam = searchParams.get('color');
+      if (colorParam) {
+        const idx = product.colors.findIndex(c => c.name.toLowerCase() === colorParam.toLowerCase());
+        if (idx !== -1) {
+          setSelectedColor(idx);
+          return;
+        }
+      }
+      setSelectedColor(0);
+    }
+  }, [product, searchParams, id]);
 
   // Sync activeImage with selectedColor or product change
   useEffect(() => {
@@ -238,7 +262,10 @@ export function ProductPage() {
               {product.colors.map((c, i) => (
                 <button
                   key={c.name}
-                  onClick={() => setSelectedColor(i)}
+                  onClick={() => {
+                    setSelectedColor(i);
+                    setSearchParams({ color: c.name }, { replace: true });
+                  }}
                   title={c.name}
                   className={cn(
                     'w-10 h-10 rounded-full border-2 transition flex items-center justify-center',
