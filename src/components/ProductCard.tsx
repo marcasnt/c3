@@ -51,7 +51,12 @@ export function ProductCard({ product }: ProductCardProps) {
         </button>
 
         <div className="transform group-hover:scale-105 transition-transform w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center">
-          <ProductImage product={product} size="full" />
+          <ProductImage
+            product={product}
+            size="full"
+            imageUrlOverride={selectedColor.imageUrl}
+            colorHexOverride={selectedColor.hex}
+          />
         </div>
 
         <button

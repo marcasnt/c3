@@ -23,30 +23,32 @@ export function ProductPage() {
   // Sync activeImage with selectedColor or product change
   useEffect(() => {
     if (product) {
-      const colorImg = product.colors[selectedColor]?.imageUrl;
-      if (colorImg) {
-        setActiveImage(colorImg);
+      const color = product.colors[selectedColor];
+      const hasColorImages = color && (color.imageUrl || color.imageUrl2 || color.imageUrl3);
+      
+      if (hasColorImages) {
+        setActiveImage(color.imageUrl || color.imageUrl2 || color.imageUrl3 || undefined);
       } else {
         setActiveImage(product.imageUrl || product.imageUrl2 || product.imageUrl3 || undefined);
       }
     }
   }, [selectedColor, product, id]);
 
-  // List of all active product images (real uploaded URLs)
+  // List of all active product images (real uploaded URLs) for the selected color or product fallback
   const imageUrls = useMemo(() => {
     if (!product) return [];
-    const list = [product.imageUrl, product.imageUrl2, product.imageUrl3];
     
-    product.colors.forEach(c => {
-      if (c.imageUrl && !list.includes(c.imageUrl)) {
-        list.push(c.imageUrl);
-      }
-    });
+    const color = product.colors[selectedColor];
+    const hasColorImages = color && (color.imageUrl || color.imageUrl2 || color.imageUrl3);
+    
+    const list = hasColorImages
+      ? [color.imageUrl, color.imageUrl2, color.imageUrl3]
+      : [product.imageUrl, product.imageUrl2, product.imageUrl3];
 
     return list.filter(
       (url): url is string => typeof url === 'string' && url.trim() !== ''
     );
-  }, [product?.imageUrl, product?.imageUrl2, product?.imageUrl3, product?.colors]);
+  }, [product, selectedColor]);
 
   const currentImageIndex = useMemo(() => {
     if (!activeImage) return 0;

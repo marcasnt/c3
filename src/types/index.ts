@@ -6,6 +6,8 @@ export interface Color {
   name: string;
   hex: string;
   imageUrl?: string;
+  imageUrl2?: string;
+  imageUrl3?: string;
 }
 
 export interface Product {
