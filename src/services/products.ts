@@ -136,9 +136,46 @@ export async function fetchProduct(id: string): Promise<ProductWithRelations | n
   return mapDbProductToProduct(data);
 }
 
+// Helper to ensure a category exists in the database and return its ID
+async function ensureCategoryExists(categoryName: string): Promise<number> {
+  const { data: existing } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('name', categoryName)
+    .maybeSingle();
+
+  if (existing) {
+    return existing.id;
+  }
+
+  const slug = categoryName
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove accents
+    .replace(/[^a-z0-9]+/g, '-')     // replace non-alphanumeric with -
+    .replace(/(^-|-$)+/g, '');        // remove leading/trailing dashes
+
+  const { data: inserted, error: insertError } = await supabase
+    .from('categories')
+    .insert([{ name: categoryName, slug, is_active: true, sort_order: 10 }])
+    .select('id')
+    .single();
+
+  if (insertError) {
+    console.error('Error inserting category:', insertError);
+    return CATEGORY_IDS['Genéricos'] || 6;
+  }
+
+  return inserted.id;
+}
+
 // Admin: crear producto
 export async function createProduct(product: Omit<Product, 'id'>): Promise<Product> {
   const dbData = mapProductToDb(product);
+  
+  if (product.category) {
+    dbData.category_id = await ensureCategoryExists(product.category);
+  }
   
   // Note: if id is dummy (like p-xxxx), do not insert it to let database generate UUID
   if ('id' in dbData) delete dbData.id;
@@ -160,6 +197,11 @@ export async function createProduct(product: Omit<Product, 'id'>): Promise<Produ
 // Admin: actualizar producto
 export async function updateProduct(id: string, updates: Partial<Product>): Promise<void> {
   const dbData = mapProductToDb(updates);
+
+  if (updates.category !== undefined) {
+    dbData.category_id = await ensureCategoryExists(updates.category);
+  }
+
   const { error } = await supabase
     .from('products')
     .update(dbData)

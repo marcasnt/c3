@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { Plus, Edit2, Trash2, Search, Save, X, Star, Upload, Image as ImageIcon, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
 import { useApp } from '../../store';
 import { BRAND_INFO } from '../../data/products';
@@ -7,7 +7,7 @@ import { ProductImage } from '../../components/ProductImage';
 import { cn } from '../../utils/cn';
 import { uploadProductImage } from '../../services/products';
 
-const CATEGORIES: Category[] = ['Con tapa y popote', 'Con asa', 'Botellas', 'Kids / Disney', 'Genéricos', 'Accesorios'];
+const BASE_CATEGORIES: string[] = ['Con tapa y popote', 'Con asa', 'Botellas', 'Kids / Disney', 'Genéricos', 'Accesorios'];
 const BRANDS: Brand[] = ['Stanley', 'YETI', 'Owala', 'Lululemon', 'Thermos', 'Disney', 'Genéricos'];
 
 export function ProductsPage() {
@@ -157,6 +157,19 @@ function ProductModal({
   onClose: () => void;
   onSave: (p: Product) => void;
 }) {
+  const { products } = useApp();
+
+  const dynamicCategories = useMemo(() => {
+    const unique = new Set<string>(BASE_CATEGORIES);
+    products.forEach(p => {
+      if (p.category) unique.add(p.category);
+    });
+    return Array.from(unique);
+  }, [products]);
+
+  const [isNewCategory, setIsNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+
   const [form, setForm] = useState<Product>(product ?? {
     id: '',
     code: '',
@@ -482,12 +495,45 @@ function ProductModal({
             <div>
               <label className="text-xs font-semibold text-gray-700 dark:text-slate-300">Categoría</label>
               <select
-                value={form.category}
-                onChange={e => setForm({ ...form, category: e.target.value as Category })}
+                value={isNewCategory ? 'NEW_CAT' : form.category}
+                onChange={e => {
+                  if (e.target.value === 'NEW_CAT') {
+                    setIsNewCategory(true);
+                    setNewCategoryName('');
+                  } else {
+                    setIsNewCategory(false);
+                    setForm({ ...form, category: e.target.value });
+                  }
+                }}
                 className="w-full mt-1 px-3 py-2 border border-gray-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-700 dark:text-slate-100"
               >
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                {dynamicCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                <option value="NEW_CAT">+ Nueva categoría...</option>
               </select>
+              {isNewCategory && (
+                <div className="mt-2 flex gap-1.5">
+                  <input
+                    value={newCategoryName}
+                    onChange={e => {
+                      setNewCategoryName(e.target.value);
+                      setForm({ ...form, category: e.target.value });
+                    }}
+                    placeholder="Nombre de la nueva categoría"
+                    className="flex-1 px-2.5 py-1.5 border border-gray-300 dark:border-slate-600 rounded text-xs bg-white dark:bg-slate-700 dark:text-slate-100"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsNewCategory(false);
+                      setForm({ ...form, category: dynamicCategories[0] || '' });
+                    }}
+                    className="px-2.5 py-1.5 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 rounded text-xs dark:text-slate-200 cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              )}
             </div>
             <div>
               <label className="text-xs font-semibold text-gray-700 dark:text-slate-300">Capacidad</label>

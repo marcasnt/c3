@@ -7,9 +7,6 @@ import { BRAND_INFO } from '../data/products';
 import type { Brand, Category } from '../types';
 import { cn } from '../utils/cn';
 
-const CATEGORIES: (Category | 'Todos')[] = [
-  'Todos', 'Con tapa y popote', 'Con asa', 'Botellas', 'Kids / Disney', 'Genéricos', 'Accesorios',
-];
 
 const SORT_OPTIONS = [
   { value: 'recent', label: 'Más recientes' },
@@ -20,6 +17,16 @@ const SORT_OPTIONS = [
 
 export function CatalogPage() {
   const { products } = useApp();
+
+  const categoriesList = useMemo(() => {
+    const base = ['Todos', 'Con tapa y popote', 'Con asa', 'Botellas', 'Kids / Disney', 'Genéricos', 'Accesorios'];
+    const unique = new Set<string>(base);
+    products.forEach(p => {
+      if (p.category) unique.add(p.category);
+    });
+    return Array.from(unique);
+  }, [products]);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get('q') || '');
   const [brand, setBrand] = useState<Brand | 'Todas'>(
@@ -133,7 +140,7 @@ export function CatalogPage() {
             <div className="mb-4">
               <h4 className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-2">Categorías</h4>
               <ul className="space-y-1">
-                {CATEGORIES.map(c => (
+                {categoriesList.map(c => (
                   <li key={c}>
                     <button
                       onClick={() => setCategory(c)}

@@ -1,6 +1,6 @@
 export type Brand = 'Stanley' | 'YETI' | 'Owala' | 'Lululemon' | 'Thermos' | 'Disney' | 'Genéricos';
 
-export type Category = 'Todos los vasos' | 'Con tapa y popote' | 'Con asa' | 'Botellas' | 'Kids / Disney' | 'Genéricos' | 'Accesorios';
+export type Category = string;
 
 export interface Color {
   name: string;
