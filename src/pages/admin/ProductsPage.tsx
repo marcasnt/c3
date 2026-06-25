@@ -177,8 +177,12 @@ function ProductModal({
   const [colorName, setColorName] = useState('');
   const [colorHex, setColorHex] = useState('#000000');
   const [colorImage, setColorImage] = useState('');
-  const [uploadingColor, setUploadingColor] = useState(false);
-  const colorFileInputRef = useRef<HTMLInputElement>(null);
+  const [colorImage2, setColorImage2] = useState('');
+  const [colorImage3, setColorImage3] = useState('');
+  const [uploadingColor, setUploadingColor] = useState<'imageUrl' | 'imageUrl2' | 'imageUrl3' | null>(null);
+  const colorFileInputRef1 = useRef<HTMLInputElement>(null);
+  const colorFileInputRef2 = useRef<HTMLInputElement>(null);
+  const colorFileInputRef3 = useRef<HTMLInputElement>(null);
   const [feature, setFeature] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -186,7 +190,7 @@ function ProductModal({
   const fileInputRef3 = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
 
-  const handleColorImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleColorImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'imageUrl' | 'imageUrl2' | 'imageUrl3') => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
@@ -197,22 +201,38 @@ function ProductModal({
       alert('La imagen no debe superar 5MB');
       return;
     }
-    setUploadingColor(true);
+    setUploadingColor(field);
     try {
-      const url = await uploadProductImage(file, `${form.code || 'temp'}-color-${colorName || Date.now()}`);
-      setColorImage(url);
+      const url = await uploadProductImage(file, `${form.code || 'temp'}-color-${colorName || Date.now()}-${field}`);
+      if (field === 'imageUrl') setColorImage(url);
+      if (field === 'imageUrl2') setColorImage2(url);
+      if (field === 'imageUrl3') setColorImage3(url);
     } catch (err: any) {
       alert('Error al subir imagen de color: ' + (err?.message || 'desconocido'));
     } finally {
-      setUploadingColor(false);
+      setUploadingColor(null);
     }
   };
 
   const addColor = () => {
     if (colorName) {
-      setForm({ ...form, colors: [...form.colors, { name: colorName, hex: colorHex, imageUrl: colorImage || undefined }] });
+      setForm({
+        ...form,
+        colors: [
+          ...form.colors,
+          {
+            name: colorName,
+            hex: colorHex,
+            imageUrl: colorImage || undefined,
+            imageUrl2: colorImage2 || undefined,
+            imageUrl3: colorImage3 || undefined
+          }
+        ]
+      });
       setColorName('');
       setColorImage('');
+      setColorImage2('');
+      setColorImage3('');
     }
   };
 
@@ -490,7 +510,11 @@ function ProductModal({
               {form.colors.map((c, i) => (
                 <div key={i} className="flex items-center gap-1.5 bg-gray-100 dark:bg-slate-700 rounded-full pl-1 pr-2 py-1">
                   {c.imageUrl ? (
-                    <img src={c.imageUrl} alt={c.name} className="w-5 h-5 rounded-full object-cover border border-gray-300 dark:border-slate-500" />
+                    <div className="flex gap-0.5">
+                      <img src={c.imageUrl} alt={c.name} className="w-5 h-5 rounded-full object-cover border border-gray-300 dark:border-slate-500" />
+                      {c.imageUrl2 && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 self-end mb-0.5" title="Tiene vista 2" />}
+                      {c.imageUrl3 && <span className="w-1.5 h-1.5 rounded-full bg-blue-500 self-end mb-0.5" title="Tiene vista 3" />}
+                    </div>
                   ) : (
                     <span className="w-4 h-4 rounded-full border border-gray-300 dark:border-slate-500" style={{ backgroundColor: c.hex }} />
                   )}
@@ -523,39 +547,121 @@ function ProductModal({
               </button>
             </div>
             
-            <div className="flex flex-col gap-1.5 mt-2 p-2.5 bg-gray-50 dark:bg-slate-700/30 rounded-lg border border-gray-200 dark:border-slate-600">
-              <span className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase">Foto de referencia de este color (Opcional)</span>
-              <div className="flex gap-2 items-center">
-                <input
-                  ref={colorFileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleColorImageUpload}
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  onClick={() => colorFileInputRef.current?.click()}
-                  disabled={uploadingColor || !colorName}
-                  className="px-2.5 py-1.5 bg-[#0A1B2A] hover:bg-[#2563EB] dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded text-xs font-semibold disabled:opacity-50 transition"
-                >
-                  {uploadingColor ? 'Subiendo...' : 'Tomar Foto / Subir'}
-                </button>
-                <input
-                  value={colorImage}
-                  onChange={e => setColorImage(e.target.value)}
-                  placeholder="O pega el link/URL de la imagen del color..."
-                  disabled={!colorName}
-                  className="flex-1 px-2.5 py-1.5 border border-gray-300 dark:border-slate-600 rounded text-xs bg-white dark:bg-slate-700 dark:text-slate-100 disabled:opacity-50"
-                />
-              </div>
-              {colorImage && (
-                <div className="flex items-center gap-2 mt-1">
-                  <img src={colorImage} alt="Color preview" className="w-8 h-8 rounded border object-cover" />
-                  <span className="text-[10px] text-gray-500 dark:text-slate-400 truncate flex-1">{colorImage}</span>
-                  <button type="button" onClick={() => setColorImage('')} className="text-red-500 text-[10px] hover:underline">Quitar</button>
+            <div className="flex flex-col gap-2 mt-2.5 p-3 bg-gray-50 dark:bg-slate-700/30 rounded-lg border border-gray-200 dark:border-slate-600">
+              <span className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase block mb-1">Vistas del color (Máx. 3 imágenes)</span>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* VISTA PRINCIPAL DEL COLOR */}
+                <div className="flex flex-col items-center p-2 bg-white dark:bg-slate-800 rounded border border-gray-100 dark:border-slate-700">
+                  <span className="text-[9px] font-bold text-gray-400 mb-1.5 uppercase">Vista Principal</span>
+                  <div className="w-12 h-12 bg-gray-50 dark:bg-slate-700 rounded border border-dashed border-gray-300 dark:border-slate-500 flex items-center justify-center overflow-hidden mb-1.5">
+                    {colorImage ? (
+                      <img src={colorImage} alt="Principal" className="w-full h-full object-contain" />
+                    ) : (
+                      <span className="w-3.5 h-3.5 rounded-full border border-gray-300" style={{ backgroundColor: colorHex }} />
+                    )}
+                  </div>
+                  <input
+                    ref={colorFileInputRef1}
+                    type="file"
+                    accept="image/*"
+                    onChange={e => handleColorImageUpload(e, 'imageUrl')}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => colorFileInputRef1.current?.click()}
+                    disabled={uploadingColor !== null || !colorName}
+                    className="w-full py-1 bg-[#0A1B2A] hover:bg-[#2563EB] dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded text-[10px] font-semibold disabled:opacity-50 transition"
+                  >
+                    {uploadingColor === 'imageUrl' ? 'S...' : 'Subir'}
+                  </button>
+                  <input
+                    value={colorImage}
+                    onChange={e => setColorImage(e.target.value)}
+                    placeholder="URL..."
+                    disabled={!colorName}
+                    className="w-full mt-1.5 px-1 py-0.5 border border-gray-300 dark:border-slate-600 rounded text-[9px] bg-white dark:bg-slate-700 dark:text-slate-100 disabled:opacity-50"
+                  />
+                  {colorImage && (
+                    <button type="button" onClick={() => setColorImage('')} className="text-red-500 text-[8px] hover:underline mt-1">Quitar</button>
+                  )}
                 </div>
-              )}
+
+                {/* VISTA SECUNDARIA 2 DEL COLOR */}
+                <div className="flex flex-col items-center p-2 bg-white dark:bg-slate-800 rounded border border-gray-100 dark:border-slate-700">
+                  <span className="text-[9px] font-bold text-gray-400 mb-1.5 uppercase">Secundaria 2</span>
+                  <div className="w-12 h-12 bg-gray-50 dark:bg-slate-700 rounded border border-dashed border-gray-300 dark:border-slate-500 flex items-center justify-center overflow-hidden mb-1.5">
+                    {colorImage2 ? (
+                      <img src={colorImage2} alt="Secundaria 2" className="w-full h-full object-contain" />
+                    ) : (
+                      <span className="w-3.5 h-3.5 rounded-full border border-gray-300" style={{ backgroundColor: colorHex }} />
+                    )}
+                  </div>
+                  <input
+                    ref={colorFileInputRef2}
+                    type="file"
+                    accept="image/*"
+                    onChange={e => handleColorImageUpload(e, 'imageUrl2')}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => colorFileInputRef2.current?.click()}
+                    disabled={uploadingColor !== null || !colorName}
+                    className="w-full py-1 bg-[#0A1B2A] hover:bg-[#2563EB] dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded text-[10px] font-semibold disabled:opacity-50 transition"
+                  >
+                    {uploadingColor === 'imageUrl2' ? 'S...' : 'Subir'}
+                  </button>
+                  <input
+                    value={colorImage2}
+                    onChange={e => setColorImage2(e.target.value)}
+                    placeholder="URL..."
+                    disabled={!colorName}
+                    className="w-full mt-1.5 px-1 py-0.5 border border-gray-300 dark:border-slate-600 rounded text-[9px] bg-white dark:bg-slate-700 dark:text-slate-100 disabled:opacity-50"
+                  />
+                  {colorImage2 && (
+                    <button type="button" onClick={() => setColorImage2('')} className="text-red-500 text-[8px] hover:underline mt-1">Quitar</button>
+                  )}
+                </div>
+
+                {/* VISTA SECUNDARIA 3 DEL COLOR */}
+                <div className="flex flex-col items-center p-2 bg-white dark:bg-slate-800 rounded border border-gray-100 dark:border-slate-700">
+                  <span className="text-[9px] font-bold text-gray-400 mb-1.5 uppercase">Secundaria 3</span>
+                  <div className="w-12 h-12 bg-gray-50 dark:bg-slate-700 rounded border border-dashed border-gray-300 dark:border-slate-500 flex items-center justify-center overflow-hidden mb-1.5">
+                    {colorImage3 ? (
+                      <img src={colorImage3} alt="Secundaria 3" className="w-full h-full object-contain" />
+                    ) : (
+                      <span className="w-3.5 h-3.5 rounded-full border border-gray-300" style={{ backgroundColor: colorHex }} />
+                    )}
+                  </div>
+                  <input
+                    ref={colorFileInputRef3}
+                    type="file"
+                    accept="image/*"
+                    onChange={e => handleColorImageUpload(e, 'imageUrl3')}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => colorFileInputRef3.current?.click()}
+                    disabled={uploadingColor !== null || !colorName}
+                    className="w-full py-1 bg-[#0A1B2A] hover:bg-[#2563EB] dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded text-[10px] font-semibold disabled:opacity-50 transition"
+                  >
+                    {uploadingColor === 'imageUrl3' ? 'S...' : 'Subir'}
+                  </button>
+                  <input
+                    value={colorImage3}
+                    onChange={e => setColorImage3(e.target.value)}
+                    placeholder="URL..."
+                    disabled={!colorName}
+                    className="w-full mt-1.5 px-1 py-0.5 border border-gray-300 dark:border-slate-600 rounded text-[9px] bg-white dark:bg-slate-700 dark:text-slate-100 disabled:opacity-50"
+                  />
+                  {colorImage3 && (
+                    <button type="button" onClick={() => setColorImage3('')} className="text-red-500 text-[8px] hover:underline mt-1">Quitar</button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
