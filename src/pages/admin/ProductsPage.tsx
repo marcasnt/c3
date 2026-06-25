@@ -11,16 +11,39 @@ const BASE_CATEGORIES: string[] = ['Con tapa y popote', 'Con asa', 'Botellas', '
 const BRANDS: Brand[] = ['Stanley', 'YETI', 'Owala', 'Lululemon', 'Thermos', 'Disney', 'Genéricos'];
 
 export function ProductsPage() {
-  const { products, addProduct, updateProduct, deleteProduct } = useApp();
+  const { products, addProduct, updateProduct, deleteProduct, saveProductsOrder } = useApp();
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Product | null>(null);
   const [showNew, setShowNew] = useState(false);
 
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.code.toLowerCase().includes(search.toLowerCase()) ||
-    p.brand.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = useMemo(() => {
+    return products.filter(p =>
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      p.code.toLowerCase().includes(search.toLowerCase()) ||
+      p.brand.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [products, search]);
+
+  const handleMoveProduct = async (index: number, direction: 'up' | 'down') => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= filtered.length) return;
+
+    const newList = [...filtered];
+    const temp = newList[index];
+    newList[index] = newList[targetIndex];
+    newList[targetIndex] = temp;
+
+    const updatedList = newList.map((item, idx) => ({
+      ...item,
+      sortOrder: idx * 10
+    }));
+
+    try {
+      await saveProductsOrder(updatedList);
+    } catch (err: any) {
+      alert('Error al guardar el orden de los productos: ' + (err?.message || err));
+    }
+  };
 
   return (
     <div>
@@ -66,7 +89,7 @@ export function ProductsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(p => (
+              {filtered.map((p, index) => (
                 <tr key={p.id} className="border-t border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/30">
                   <td className="p-3">
                     <div className="flex items-center gap-3">
@@ -106,7 +129,28 @@ export function ProductsPage() {
                     </div>
                   </td>
                   <td className="p-3 text-right">
-                    <div className="inline-flex gap-1">
+                    <div className="inline-flex gap-1 items-center">
+                      {!search && (
+                        <>
+                          <button
+                            onClick={() => handleMoveProduct(index, 'up')}
+                            disabled={index === 0}
+                            className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded text-gray-500 disabled:opacity-30 disabled:pointer-events-none"
+                            title="Mover arriba"
+                          >
+                            <ChevronUp className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleMoveProduct(index, 'down')}
+                            disabled={index === filtered.length - 1}
+                            className="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded text-gray-500 disabled:opacity-30 disabled:pointer-events-none"
+                            title="Mover abajo"
+                          >
+                            <ChevronDown className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="w-px h-4 bg-gray-200 dark:bg-slate-600 mx-0.5" />
+                        </>
+                      )}
                       <button
                         onClick={() => setEditing(p)}
                         className="p-1.5 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded text-[#2563EB]"

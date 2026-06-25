@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode, useCallback } from 'react';
 import type { Product, CartItem, Quotation, AdminUser, SiteConfig } from '../types';
-import { fetchProducts as svcFetchProducts, createProduct as svcCreateProduct, updateProduct as svcUpdateProduct, deleteProduct as svcDeleteProduct } from '../services/products';
+import { fetchProducts as svcFetchProducts, createProduct as svcCreateProduct, updateProduct as svcUpdateProduct, deleteProduct as svcDeleteProduct, saveProductsOrder as svcSaveProductsOrder } from '../services/products';
 import { createQuotation as svcCreateQuotation, fetchQuotations as svcFetchQuotations, updateQuotationStatus as svcUpdateQuotationStatus, deleteQuotation as svcDeleteQuotation } from '../services/quotations';
 import { signIn as svcSignIn, signOut as svcSignOut, getCurrentProfile } from '../services/auth';
 import { fetchPublicConfig, updateConfigValue } from '../services/config';
@@ -38,6 +38,7 @@ interface AppState {
   addProduct: (p: Product) => Promise<void>;
   updateProduct: (id: string, p: Partial<Product>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
+  saveProductsOrder: (orderedProducts: Product[]) => Promise<void>;
 
   // Site config
   siteConfig: SiteConfig;
@@ -302,6 +303,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setProducts(prev => prev.filter(x => x.id !== id));
   };
 
+  const saveProductsOrder: AppState['saveProductsOrder'] = async (orderedProducts) => {
+    // Update local state first (optimistic UI)
+    setProducts(orderedProducts);
+    
+    // Call service to save orders in database
+    const updates = orderedProducts.map((p, index) => ({
+      id: p.id,
+      sortOrder: p.sortOrder !== undefined ? p.sortOrder : index * 10
+    }));
+    await svcSaveProductsOrder(updates);
+  };
+
   // ====== CONFIG ACTIONS ======
   const updateSiteConfig: AppState['updateSiteConfig'] = async (c) => {
     setSiteConfig(prev => ({ ...prev, ...c }));
@@ -341,6 +354,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         addProduct,
         updateProduct,
         deleteProduct,
+        saveProductsOrder,
         siteConfig,
         configLoading,
         refreshConfig,

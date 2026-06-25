@@ -56,6 +56,7 @@ function mapDbProductToProduct(dbProduct: any): ProductWithRelations {
     isNew: !!dbProduct.is_new,
     isActive: !!dbProduct.is_active,
     packaging: dbProduct.packaging || '',
+    sortOrder: Number(dbProduct.sort_order) || 0,
   } as ProductWithRelations;
 }
 
@@ -70,6 +71,8 @@ function mapProductToDb(product: Partial<Product>): any {
   if (product.features !== undefined) dbProduct.features = product.features;
   if (product.stock !== undefined) dbProduct.stock = product.stock;
   if (product.packaging !== undefined) dbProduct.packaging = product.packaging;
+
+  if (product.sortOrder !== undefined) dbProduct.sort_order = product.sortOrder;
 
   // Mapped fields
   if (product.pricePublic !== undefined) dbProduct.price_public = product.pricePublic;
@@ -111,6 +114,7 @@ export async function fetchProducts(): Promise<ProductWithRelations[]> {
       category:categories(*)
     `)
     .eq('is_active', true)
+    .order('sort_order', { ascending: true })
     .order('is_featured', { ascending: false })
     .order('created_at', { ascending: false });
 
@@ -236,4 +240,18 @@ export async function uploadProductImage(file: File, productCode: string): Promi
     .getPublicUrl(fileName);
 
   return publicUrl;
+}
+
+// Admin: guardar orden de múltiples productos en lote (upsert)
+export async function saveProductsOrder(orderedProducts: { id: string; sortOrder: number }[]): Promise<void> {
+  const updates = orderedProducts.map(p => ({
+    id: p.id,
+    sort_order: p.sortOrder
+  }));
+
+  const { error } = await supabase
+    .from('products')
+    .upsert(updates);
+
+  if (error) throw error;
 }

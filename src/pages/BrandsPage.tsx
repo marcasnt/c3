@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Package } from 'lucide-react';
 import { useApp } from '../store';
@@ -8,6 +9,44 @@ import { ProductImage } from '../components/ProductImage';
 export function BrandsPage() {
   const { products } = useApp();
   const brands = Object.keys(BRAND_INFO) as Brand[];
+
+  const brandCards = useMemo(() => {
+    return brands.map(brand => {
+      const brandProducts = products.filter(p => p.brand === brand && p.isActive !== false);
+      if (brandProducts.length === 0) return null;
+
+      // Filter out accessories, keeping only thermos (termos)
+      let thermosProducts = brandProducts.filter(p => p.category !== 'Accesorios');
+      // If there are no thermos, fallback to brandProducts
+      if (thermosProducts.length === 0) {
+        thermosProducts = brandProducts;
+      }
+
+      // Collect all color variants from these thermos that have images
+      const options = thermosProducts.flatMap(p => {
+        const colors = p.colors || [];
+        if (colors.length === 0) {
+          return [{ product: p, color: null }];
+        }
+        return colors.map(c => ({ product: p, color: c }));
+      }).filter(o => o.color?.imageUrl || o.product.imageUrl || o.product.image);
+
+      // Select a random option
+      const randomOption = options.length > 0
+        ? options[Math.floor(Math.random() * options.length)]
+        : { product: thermosProducts[0], color: null };
+
+      return {
+        brand,
+        productsCount: brandProducts.length,
+        option: randomOption
+      };
+    }).filter(Boolean) as {
+      brand: Brand;
+      productsCount: number;
+      option: { product: any; color: any };
+    }[];
+  }, [products, brands]);
 
   return (
     <div className="fade-in max-w-7xl mx-auto px-4 py-8">
@@ -20,10 +59,8 @@ export function BrandsPage() {
       <p className="text-gray-600 dark:text-slate-300 mb-8">Trabajamos con las marcas más reconocidas del mercado.</p>
 
       <div className="grid md:grid-cols-2 gap-6">
-        {brands.map(brand => {
-          const brandProducts = products.filter(p => p.brand === brand);
-          const sample = brandProducts[0];
-          if (!sample) return null;
+        {brandCards.map(card => {
+          const { brand, productsCount, option } = card;
           return (
             <Link
               key={brand}
@@ -31,7 +68,12 @@ export function BrandsPage() {
               className="group bg-white dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700 hover:border-[#2563EB] rounded-2xl p-6 transition flex items-center gap-5"
             >
               <div className="w-24 h-32 bg-gradient-to-b from-gray-50 to-white dark:from-slate-700 dark:to-slate-900 rounded-lg flex items-center justify-center shrink-0 border border-gray-100 dark:border-slate-600 p-1">
-                <ProductImage product={sample} size="md" />
+                <ProductImage
+                  product={option.product}
+                  size="md"
+                  imageUrlOverride={option.color?.imageUrl}
+                  colorHexOverride={option.color?.hex}
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
@@ -42,7 +84,7 @@ export function BrandsPage() {
                 </div>
                 <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-slate-400 mb-2">
                   <Package className="w-3.5 h-3.5" />
-                  <span>{brandProducts.length} {brandProducts.length === 1 ? 'producto' : 'productos'}</span>
+                  <span>{productsCount} {productsCount === 1 ? 'producto' : 'productos'}</span>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-slate-300 line-clamp-2 mb-3">
                   Descubre la línea completa de {brand}. Vasos térmicos de alta calidad con la garantía original de fábrica.

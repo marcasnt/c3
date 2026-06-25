@@ -40,8 +40,11 @@ export function HomePage() {
   // Prioritize featured products, fill with active products to get exactly 8 grid items
   const heroProducts = useMemo(() => {
     const list = products.filter(p => p.featured && p.isActive !== false);
+    list.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+
     if (list.length < 8) {
       const remaining = products.filter(p => !p.featured && p.isActive !== false);
+      remaining.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
       list.push(...remaining);
     }
     return list.slice(0, 8);

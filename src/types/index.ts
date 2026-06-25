@@ -31,6 +31,7 @@ export interface Product {
   isNew?: boolean;
   isActive?: boolean;
   packaging: string;
+  sortOrder?: number;
 }
 
 export interface CartItem {
