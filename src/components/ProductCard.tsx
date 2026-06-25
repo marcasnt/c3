@@ -14,7 +14,14 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart, setCartOpen } = useApp();
   const [fav, setFav] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+  const [selectedColor, setSelectedColor] = useState(() => {
+    if (!product.colors || product.colors.length === 0) {
+      return { name: 'Defecto', hex: '#1A1A1A' };
+    }
+    const visibleColors = product.colors.slice(0, 6);
+    const randomIndex = Math.floor(Math.random() * visibleColors.length);
+    return visibleColors[randomIndex];
+  });
 
   const savings = product.pricePublic - product.priceDistributor;
   const savingsPct = Math.round((savings / product.pricePublic) * 100);
@@ -83,7 +90,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </h3>
 
         <div className="flex gap-1 mt-2">
-          {product.colors.slice(0, 5).map(c => (
+          {product.colors.slice(0, 6).map(c => (
             <button
               key={c.name}
               onClick={e => { e.preventDefault(); setSelectedColor(c); }}
