@@ -17,10 +17,22 @@ export function HomePage() {
 
   const scroll = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
-      const { scrollLeft, clientWidth } = carouselRef.current;
-      const scrollTo = direction === 'left' 
+      const { scrollLeft, clientWidth, scrollWidth } = carouselRef.current;
+      const tolerance = 5; // buffer to handle float rounding differences
+      
+      let scrollTo = direction === 'left' 
         ? scrollLeft - clientWidth 
         : scrollLeft + clientWidth;
+
+      const isAtEnd = scrollLeft + clientWidth >= scrollWidth - tolerance;
+      const isAtStart = scrollLeft <= tolerance;
+
+      if (direction === 'right' && isAtEnd) {
+        scrollTo = 0; // wrap to start
+      } else if (direction === 'left' && isAtStart) {
+        scrollTo = scrollWidth - clientWidth; // wrap to end
+      }
+
       carouselRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
     }
   };
