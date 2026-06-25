@@ -6,10 +6,11 @@ interface ProductImageProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
   className?: string;
   imageUrlOverride?: string;
+  colorHexOverride?: string;
 }
 
 // SVG-based product visualization with proper containment
-export function ProductImage({ product, size = 'md', className = '', imageUrlOverride }: ProductImageProps) {
+export function ProductImage({ product, size = 'md', className = '', imageUrlOverride, colorHexOverride }: ProductImageProps) {
   // Fixed aspect ratio box so images never overflow or get cropped weirdly
   const sizeMap = {
     xs: { box: 'w-10 h-10', svg: 40 },
@@ -36,11 +37,11 @@ export function ProductImage({ product, size = 'md', className = '', imageUrlOve
     );
   }
 
-  return <FallbackImage product={product} svg={svg} className={`${box} ${className}`} />;
+  return <FallbackImage product={product} svg={svg} className={`${box} ${className}`} colorHexOverride={colorHexOverride} />;
 }
 
-function FallbackImage({ product, svg, className }: { product: Product; svg: number; className: string }) {
-  const primaryColor = product.colors[0]?.hex || '#1A1A1A';
+function FallbackImage({ product, svg, className, colorHexOverride }: { product: Product; svg: number; className: string; colorHexOverride?: string }) {
+  const primaryColor = colorHexOverride || product.colors[0]?.hex || '#1A1A1A';
   const secondaryColor = product.colors[1]?.hex || '#3A3A3A';
   const brandInfo = BRAND_INFO[product.brand];
 

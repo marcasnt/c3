@@ -5,6 +5,7 @@ export type Category = 'Todos los vasos' | 'Con tapa y popote' | 'Con asa' | 'Bo
 export interface Color {
   name: string;
   hex: string;
+  imageUrl?: string;
 }
 
 export interface Product {

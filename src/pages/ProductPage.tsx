@@ -20,20 +20,33 @@ export function ProductPage() {
   const [activeImage, setActiveImage] = useState<string | undefined>(undefined);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  // Sync activeImage with product change
+  // Sync activeImage with selectedColor or product change
   useEffect(() => {
     if (product) {
-      setActiveImage(product.imageUrl || product.imageUrl2 || product.imageUrl3 || undefined);
+      const colorImg = product.colors[selectedColor]?.imageUrl;
+      if (colorImg) {
+        setActiveImage(colorImg);
+      } else {
+        setActiveImage(product.imageUrl || product.imageUrl2 || product.imageUrl3 || undefined);
+      }
     }
-  }, [id, product?.imageUrl, product?.imageUrl2, product?.imageUrl3]);
+  }, [selectedColor, product, id]);
 
   // List of all active product images (real uploaded URLs)
   const imageUrls = useMemo(() => {
     if (!product) return [];
-    return [product.imageUrl, product.imageUrl2, product.imageUrl3].filter(
+    const list = [product.imageUrl, product.imageUrl2, product.imageUrl3];
+    
+    product.colors.forEach(c => {
+      if (c.imageUrl && !list.includes(c.imageUrl)) {
+        list.push(c.imageUrl);
+      }
+    });
+
+    return list.filter(
       (url): url is string => typeof url === 'string' && url.trim() !== ''
     );
-  }, [product?.imageUrl, product?.imageUrl2, product?.imageUrl3]);
+  }, [product?.imageUrl, product?.imageUrl2, product?.imageUrl3, product?.colors]);
 
   const currentImageIndex = useMemo(() => {
     if (!activeImage) return 0;
@@ -107,7 +120,7 @@ export function ProductPage() {
             onClick={() => setLightboxIndex(imageUrls.length > 0 ? currentImageIndex : 0)}
             className="group relative bg-gradient-to-b from-gray-50 to-white dark:from-slate-800 dark:to-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-8 aspect-square flex items-center justify-center cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg"
           >
-            <ProductImage product={product} imageUrlOverride={activeImage} size="xl" className="transition-transform duration-300 group-hover:scale-[1.03]" />
+            <ProductImage product={product} imageUrlOverride={activeImage} colorHexOverride={product.colors[selectedColor]?.hex} size="xl" className="transition-transform duration-300 group-hover:scale-[1.03]" />
             
             {/* Zoom indicator overlay */}
             <div className="absolute inset-0 bg-black/10 dark:bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">

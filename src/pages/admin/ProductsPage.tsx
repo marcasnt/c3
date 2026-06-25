@@ -176,6 +176,9 @@ function ProductModal({
 
   const [colorName, setColorName] = useState('');
   const [colorHex, setColorHex] = useState('#000000');
+  const [colorImage, setColorImage] = useState('');
+  const [uploadingColor, setUploadingColor] = useState(false);
+  const colorFileInputRef = useRef<HTMLInputElement>(null);
   const [feature, setFeature] = useState('');
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -183,10 +186,33 @@ function ProductModal({
   const fileInputRef3 = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
 
+  const handleColorImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona un archivo de imagen');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('La imagen no debe superar 5MB');
+      return;
+    }
+    setUploadingColor(true);
+    try {
+      const url = await uploadProductImage(file, `${form.code || 'temp'}-color-${colorName || Date.now()}`);
+      setColorImage(url);
+    } catch (err: any) {
+      alert('Error al subir imagen de color: ' + (err?.message || 'desconocido'));
+    } finally {
+      setUploadingColor(false);
+    }
+  };
+
   const addColor = () => {
     if (colorName) {
-      setForm({ ...form, colors: [...form.colors, { name: colorName, hex: colorHex }] });
+      setForm({ ...form, colors: [...form.colors, { name: colorName, hex: colorHex, imageUrl: colorImage || undefined }] });
       setColorName('');
+      setColorImage('');
     }
   };
 
@@ -462,13 +488,17 @@ function ProductModal({
             <label className="text-xs font-semibold text-gray-700 dark:text-slate-300">Colores disponibles</label>
             <div className="flex flex-wrap gap-2 mt-1 mb-2">
               {form.colors.map((c, i) => (
-                <div key={i} className="flex items-center gap-1 bg-gray-100 dark:bg-slate-700 rounded-full pl-1 pr-2 py-1">
-                  <span className="w-4 h-4 rounded-full border border-gray-300 dark:border-slate-500" style={{ backgroundColor: c.hex }} />
+                <div key={i} className="flex items-center gap-1.5 bg-gray-100 dark:bg-slate-700 rounded-full pl-1 pr-2 py-1">
+                  {c.imageUrl ? (
+                    <img src={c.imageUrl} alt={c.name} className="w-5 h-5 rounded-full object-cover border border-gray-300 dark:border-slate-500" />
+                  ) : (
+                    <span className="w-4 h-4 rounded-full border border-gray-300 dark:border-slate-500" style={{ backgroundColor: c.hex }} />
+                  )}
                   <span className="text-xs dark:text-slate-200">{c.name}</span>
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, colors: form.colors.filter((_, idx) => idx !== i) })}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-red-500 hover:text-red-700 ml-0.5"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -479,7 +509,7 @@ function ProductModal({
               <input
                 value={colorName}
                 onChange={e => setColorName(e.target.value)}
-                placeholder="Nombre del color"
+                placeholder="Nombre del color (Ej: Rosa Mate)"
                 className="flex-1 px-3 py-1.5 border border-gray-300 dark:border-slate-600 rounded text-sm bg-white dark:bg-slate-700 dark:text-slate-100"
               />
               <input
@@ -488,9 +518,44 @@ function ProductModal({
                 onChange={e => setColorHex(e.target.value)}
                 className="w-12 h-9 border border-gray-300 dark:border-slate-600 rounded cursor-pointer"
               />
-              <button type="button" onClick={addColor} className="px-3 py-1.5 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded text-sm dark:text-slate-200">
-                +
+              <button type="button" onClick={addColor} disabled={!colorName} className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded text-sm transition">
+                + Agregar
               </button>
+            </div>
+            
+            <div className="flex flex-col gap-1.5 mt-2 p-2.5 bg-gray-50 dark:bg-slate-700/30 rounded-lg border border-gray-200 dark:border-slate-600">
+              <span className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase">Foto de referencia de este color (Opcional)</span>
+              <div className="flex gap-2 items-center">
+                <input
+                  ref={colorFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleColorImageUpload}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => colorFileInputRef.current?.click()}
+                  disabled={uploadingColor || !colorName}
+                  className="px-2.5 py-1.5 bg-[#0A1B2A] hover:bg-[#2563EB] dark:bg-slate-600 dark:hover:bg-slate-500 text-white rounded text-xs font-semibold disabled:opacity-50 transition"
+                >
+                  {uploadingColor ? 'Subiendo...' : 'Tomar Foto / Subir'}
+                </button>
+                <input
+                  value={colorImage}
+                  onChange={e => setColorImage(e.target.value)}
+                  placeholder="O pega el link/URL de la imagen del color..."
+                  disabled={!colorName}
+                  className="flex-1 px-2.5 py-1.5 border border-gray-300 dark:border-slate-600 rounded text-xs bg-white dark:bg-slate-700 dark:text-slate-100 disabled:opacity-50"
+                />
+              </div>
+              {colorImage && (
+                <div className="flex items-center gap-2 mt-1">
+                  <img src={colorImage} alt="Color preview" className="w-8 h-8 rounded border object-cover" />
+                  <span className="text-[10px] text-gray-500 dark:text-slate-400 truncate flex-1">{colorImage}</span>
+                  <button type="button" onClick={() => setColorImage('')} className="text-red-500 text-[10px] hover:underline">Quitar</button>
+                </div>
+              )}
             </div>
           </div>
 
