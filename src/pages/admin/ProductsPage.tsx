@@ -26,9 +26,9 @@ export function ProductsPage() {
 
   const handleMoveProduct = async (index: number, direction: 'up' | 'down') => {
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= filtered.length) return;
+    if (targetIndex < 0 || targetIndex >= products.length) return;
 
-    const newList = [...filtered];
+    const newList = [...products];
     const temp = newList[index];
     newList[index] = newList[targetIndex];
     newList[targetIndex] = temp;

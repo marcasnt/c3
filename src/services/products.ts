@@ -242,16 +242,16 @@ export async function uploadProductImage(file: File, productCode: string): Promi
   return publicUrl;
 }
 
-// Admin: guardar orden de múltiples productos en lote (upsert)
+// Admin: guardar orden de múltiples productos en lote (update en paralelo)
 export async function saveProductsOrder(orderedProducts: { id: string; sortOrder: number }[]): Promise<void> {
-  const updates = orderedProducts.map(p => ({
-    id: p.id,
-    sort_order: p.sortOrder
-  }));
+  const promises = orderedProducts.map(p =>
+    supabase
+      .from('products')
+      .update({ sort_order: p.sortOrder })
+      .eq('id', p.id)
+  );
 
-  const { error } = await supabase
-    .from('products')
-    .upsert(updates);
-
-  if (error) throw error;
+  const results = await Promise.all(promises);
+  const failed = results.find(r => r.error);
+  if (failed && failed.error) throw failed.error;
 }
