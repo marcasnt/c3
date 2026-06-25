@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useMemo } from 'react';
-import { ArrowRight, ShieldCheck, CreditCard, Percent, MessageCircle, Star, Truck, Award, Package } from 'lucide-react';
+import { useMemo, useRef } from 'react';
+import { ArrowRight, ShieldCheck, CreditCard, Percent, MessageCircle, Star, Truck, Award, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
 import { ProductImage } from '../components/ProductImage';
 import { useApp } from '../store';
@@ -9,9 +9,21 @@ import type { Brand } from '../types';
 
 export function HomePage() {
   const { products } = useApp();
-  const featured = products.filter(p => p.featured).slice(0, 8);
-  const newProducts = products.filter(p => p.isNew).slice(0, 4);
+  const featured = products.filter(p => p.featured && p.isActive !== false).slice(0, 8);
+  const newProducts = products.filter(p => p.isNew && p.isActive !== false).slice(0, 12);
   const brands = Object.keys(BRAND_INFO) as Brand[];
+
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const { scrollLeft, clientWidth } = carouselRef.current;
+      const scrollTo = direction === 'left' 
+        ? scrollLeft - clientWidth 
+        : scrollLeft + clientWidth;
+      carouselRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
+    }
+  };
 
   // Prioritize featured products, fill with active products to get exactly 8 grid items
   const heroProducts = useMemo(() => {
@@ -209,14 +221,45 @@ export function HomePage() {
 
       {/* NEW ARRIVALS */}
       {newProducts.length > 0 && (
-        <section className="py-10 bg-gray-50 dark:bg-slate-800/30 transition-colors">
+        <section className="py-10 bg-gray-50 dark:bg-slate-800/30 transition-colors relative overflow-hidden">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center gap-2 mb-6">
-              <Star className="w-5 h-5 text-[#00BFA6]" />
-              <h2 className="text-base font-bold text-[#0A1B2A] dark:text-slate-100">NOVEDADES</h2>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5 text-[#00BFA6]" />
+                <h2 className="text-base font-bold text-[#0A1B2A] dark:text-slate-100">NOVEDADES</h2>
+              </div>
+              {newProducts.length > 4 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => scroll('left')}
+                    className="p-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-full hover:border-[#2563EB]/50 transition shadow-sm cursor-pointer"
+                    aria-label="Deslizar izquierda"
+                  >
+                    <ChevronLeft className="w-4 h-4 text-gray-700 dark:text-slate-200" />
+                  </button>
+                  <button
+                    onClick={() => scroll('right')}
+                    className="p-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-full hover:border-[#2563EB]/50 transition shadow-sm cursor-pointer"
+                    aria-label="Deslizar derecha"
+                  >
+                    <ChevronRight className="w-4 h-4 text-gray-700 dark:text-slate-200" />
+                  </button>
+                </div>
+              )}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {newProducts.map(p => <ProductCard key={p.id} product={p} />)}
+
+            <div 
+              ref={carouselRef}
+              className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory gap-4 no-scrollbar pb-4"
+            >
+              {newProducts.map(p => (
+                <div 
+                  key={p.id} 
+                  className="w-[calc(50%-8px)] md:w-[calc(25%-12px)] shrink-0 snap-start"
+                >
+                  <ProductCard product={p} />
+                </div>
+              ))}
             </div>
           </div>
         </section>
