@@ -23,6 +23,20 @@ export function HomePage() {
     return list.slice(0, 8);
   }, [products]);
 
+  // Pair each hero product with a random color once on load
+  const heroCardsData = useMemo(() => {
+    return heroProducts.map(p => {
+      const colors = p.colors || [];
+      const randomColor = colors.length > 0
+        ? colors[Math.floor(Math.random() * colors.length)]
+        : null;
+      return {
+        product: p,
+        randomColor
+      };
+    });
+  }, [heroProducts]);
+
   return (
     <div className="fade-in">
       {/* HERO */}
@@ -66,14 +80,22 @@ export function HomePage() {
           </div>
 
           <div className="hidden md:grid grid-cols-4 gap-2.5">
-            {heroProducts.map((p) => (
+            {heroCardsData.map(({ product: p, randomColor }) => (
               <Link
                 key={p.id}
-                to={`/producto/${p.id}`}
+                to={randomColor 
+                  ? `/producto/${p.id}?color=${encodeURIComponent(randomColor.name)}`
+                  : `/producto/${p.id}`
+                }
                 className="group bg-white/10 backdrop-blur rounded-xl p-2 flex flex-col gap-2 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg border border-white/15 text-center"
               >
                 <div className="w-full h-28 bg-white/5 dark:bg-black/20 rounded-lg flex items-center justify-center p-2 transition-transform duration-300 group-hover:scale-105">
-                  <ProductImage product={p} size="full" />
+                  <ProductImage 
+                    product={p} 
+                    size="full" 
+                    imageUrlOverride={randomColor?.imageUrl}
+                    colorHexOverride={randomColor?.hex}
+                  />
                 </div>
                 <div className="min-w-0 w-full">
                   <p className="text-[9px] font-bold text-[#00BFA6] truncate uppercase tracking-wider leading-none">{p.brand}</p>
